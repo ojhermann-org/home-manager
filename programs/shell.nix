@@ -7,21 +7,21 @@ let
   switchDarwinAarch64 = pkgs.writeShellApplication {
     name = "switch";
     text = ''
-      home-manager switch --flake github:ojhermann/home-manager#otto@aarch64-darwin
+      home-manager switch --flake github:ojhermann/home-manager#otto@aarch64-darwin --refresh
     '';
   };
 
   switchLinuxX86_64 = pkgs.writeShellApplication {
     name = "switch";
     text = ''
-      home-manager switch --flake github:ojhermann/home-manager#otto@x86_64-linux
+      home-manager switch --flake github:ojhermann/home-manager#otto@x86_64-linux --refresh
     '';
   };
 
   switchLinuxAarch64 = pkgs.writeShellApplication {
     name = "switch";
     text = ''
-      home-manager switch --flake github:ojhermann/home-manager#otto@aarch64-linux
+      home-manager switch --flake github:ojhermann/home-manager#otto@aarch64-linux --refresh
     '';
   };
 
