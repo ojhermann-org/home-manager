@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd=$(jq -r '.tool_input.command'); if echo \"$cmd\" | grep -q 'gh pr create'; then (cd \"$(git rev-parse --show-toplevel)\" && nix flake update); fi",
+            "statusMessage": "Running nix flake update..."
+          }
+        ]
+      }
+    ]
+  }
+}
