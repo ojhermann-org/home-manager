@@ -15,6 +15,9 @@ a Nix flake, targeting multiple systems under a single user (`otto`).
 ```
 flake.nix          # Flake definition; declares inputs and homeConfigurations
 home.nix           # Root HM module; auto-imports all .nix files under programs/
+prek.toml          # Git hook configuration (see below)
+.claude/
+  settings.json    # Claude Code hook: runs nix flake update before gh pr create
 programs/          # One .nix file per tool/program; each returns a HM module
   shell.nix        # Shell setup (zsh on Darwin, bash on Linux), aliases, switch scripts
   git.nix
@@ -22,9 +25,10 @@ programs/          # One .nix file per tool/program; each returns a HM module
   zellij.nix
   mise.nix
   direnv.nix
+  prek.nix         # Installs prek
   ...
   shell/           # Scripts sourced by shell.nix (bash-init.sh, zsh-init.sh, etc.)
-  hx/              # Helix config files
+  hx/              # Helix config files (LSP, formatters, linters per language)
   zellij/          # Zellij layout files
 packages/          # Standalone Nix derivations imported by programs/
   gst.nix          # git status + tree combo script
@@ -105,8 +109,8 @@ home.activation.sudoByTouch = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (
 Each file under `programs/hx/` configures a language server/formatter for one
 language. They are plain HM modules (auto-imported) that extend
 `programs.helix.languages.language` and install the relevant tools into
-`home.packages`. Example: `hx/nix.nix` installs `nil`, `nixd`, and `nixfmt`
-and configures auto-format on save.
+`home.packages`. Example: `hx/nix.nix` installs `nil`, `nixd`, `nixfmt`,
+`statix`, and `deadnix`, and configures auto-format on save.
 
 ## Custom commands installed by shell.nix
 
@@ -118,6 +122,46 @@ and configures auto-format on save.
 | `new-py-dir` | Create a directory tree and add `__init__.py` to each new dir |
 | `new-zsh`    | Scaffold a new zsh script file |
 | `new-bash`   | Scaffold a new bash script file |
+
+## Git hooks (prek)
+
+[prek](https://github.com/j178/prek) manages git hooks via `prek.toml`. Hooks
+run on commit. Install hooks after cloning:
+
+```bash
+prek install
+```
+
+### Builtin hooks
+
+| Hook | Purpose |
+|------|---------|
+| `no-commit-to-branch` | Block direct commits to `main` |
+| `trailing-whitespace` | Strip trailing whitespace |
+| `end-of-file-fixer` | Ensure files end with a newline |
+| `check-merge-conflict` | Reject unresolved conflict markers |
+| `check-toml` | Validate TOML syntax |
+| `check-json` | Validate JSON syntax |
+| `detect-private-key` | Block accidental key commits |
+
+### Local hooks
+
+These run tools that are installed via home-manager packages:
+
+| Hook | Tool | What it checks |
+|------|------|----------------|
+| `nixfmt` | `nixfmt --check` | Nix files are correctly formatted |
+| `statix` | `statix check` | Nix anti-patterns and lints |
+| `deadnix` | `deadnix --fail` | Unused bindings in Nix files |
+| `shellcheck` | `shellcheck` | Shell script correctness |
+
+`statix` and `deadnix` are installed by `programs/hx/nix.nix`.
+`shellcheck` is installed by `programs/shellcheck.nix`.
+
+### Claude Code hook (`.claude/settings.json`)
+
+Before any `gh pr create` command, Claude automatically runs `nix flake update`
+from the repo root to ensure the lock file is current before the PR is opened.
 
 ## Supported systems
 
