@@ -5,6 +5,8 @@
     pkgs.nil
     pkgs.nixd
     pkgs.nixfmt
+    pkgs.statix
+    pkgs.deadnix
   ];
 
   programs.helix.languages.language = [
