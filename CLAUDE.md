@@ -80,6 +80,45 @@ let
 in { ... }
 ```
 
+### Linking config files/dirs with `xdg.configFile`
+
+Use `xdg.configFile` to symlink files or directories from the repo into
+`~/.config/`:
+
+```nix
+xdg.configFile."zellij/layouts".source = ./zellij/layouts;
+```
+
+### Post-switch activation hooks
+
+`home.activation` runs shell snippets after the config is applied. Use
+`lib.hm.dag.entryAfter [ "writeBoundary" ]` to run after files are linked:
+
+```nix
+home.activation.sudoByTouch = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (
+  lib.hm.dag.entryAfter [ "writeBoundary" ] (builtins.readFile ./shell/scripts/sudo-by-touch.sh)
+);
+```
+
+### Helix language configs (programs/hx/)
+
+Each file under `programs/hx/` configures a language server/formatter for one
+language. They are plain HM modules (auto-imported) that extend
+`programs.helix.languages.language` and install the relevant tools into
+`home.packages`. Example: `hx/nix.nix` installs `nil`, `nixd`, and `nixfmt`
+and configures auto-format on save.
+
+## Custom commands installed by shell.nix
+
+| Command      | Description |
+|--------------|-------------|
+| `switch`     | Apply latest `main` config from GitHub (platform-specific) |
+| `gst`        | `git status -sb` + `tree` (or just `tree` outside a git repo) |
+| `watch-dir`  | Run `gst` on every file change via `watchexec` |
+| `new-py-dir` | Create a directory tree and add `__init__.py` to each new dir |
+| `new-zsh`    | Scaffold a new zsh script file |
+| `new-bash`   | Scaffold a new bash script file |
+
 ## Supported systems
 
 | Attribute                        | System         |
@@ -109,6 +148,41 @@ switch   # alias for: home-manager switch --flake github:ojhermann/home-manager#
 
 This script is installed by `shell.nix` and is platform/arch-specific.
 
+## Default dev environment (Zellij `basic` layout)
+
+Running `zellij` (or `zj`) opens the `basic` layout, which is the standard
+working environment:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  tab-bar                                             │
+├──────────────┬──────────────────────────────────────┤
+│              │  claude (33%)                        │
+│  watch-dir   ├──────────────────────────────────────┤
+│  (20%)       │  hx     (33%)                        │
+│              ├──────────────────────────────────────┤
+│              │  zsh    (33%)   ← focus              │
+├──────────────┴──────────────────────────────────────┤
+│  status-bar                                          │
+└─────────────────────────────────────────────────────┘
+```
+
+`watch-dir` runs continuously on the left, showing live directory state.
+`claude`, `hx`, and `zsh` share the right pane vertically.
+
+## Shell prompt
+
+Both shells use the same custom prompt format:
+
+```
+user@host | path | YYYY-MM-DD HH:MM:SS | ⎇ branch
+>
+```
+
+Branch indicator color: **green** = clean, **red** = dirty working tree.
+Defined in `shell/scripts/zsh-init.sh` (zsh) and `shell/scripts/bash-init.sh`
+(bash).
+
 ## Important notes
 
 - **`home.stateVersion`** (`"25.11"` in `home.nix`) must not be changed even
@@ -120,3 +194,10 @@ This script is installed by `shell.nix` and is platform/arch-specific.
   level config share the same nixpkgs, avoiding duplicate package sets.
 - **Editor**: `EDITOR` and `VISUAL` are set to `hx` (Helix).
 - **`/opt/pel/formae/bin`** is on `home.sessionPath` (machine-specific tooling).
+- **`sudo-by-touch`** (Darwin only) — the post-activation hook edits
+  `/etc/pam.d/sudo_local` to enable Touch ID for `sudo`. It requires `sudo`
+  access and runs automatically after every `switch`.
+- **`new-zsh` / `new-bash`** create a file at the given path (including any
+  missing parent directories) pre-populated with a shebang and
+  `# shellcheck shell=bash` directive.
+- **Shell history** is capped at 200 entries with `ignoredups` on both shells.
