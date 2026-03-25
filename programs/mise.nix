@@ -1,4 +1,3 @@
-{ pkgs, ... }:
-{
+_: {
   programs.mise.enable = true;
 }

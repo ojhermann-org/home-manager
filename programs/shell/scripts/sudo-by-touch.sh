@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 SUDO_LOCAL="/etc/pam.d/sudo_local"
 PAM_LINE="auth       sufficient     pam_tid.so"
 

@@ -1,10 +1,13 @@
+# shellcheck shell=bash
 function git-details {
   branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
   if [[ -z "$branch" ]]; then
     echo ""
   elif git status --porcelain 2>/dev/null | grep -q .; then
+    # shellcheck disable=SC2028
     echo "\[\e[37m\]| \[\e[31m\]⎇ ${branch} \[\e[0m\]"
   else
+    # shellcheck disable=SC2028
     echo "\[\e[37m\]| \[\e[32m\]⎇ ${branch} \[\e[0m\]"
   fi
 }

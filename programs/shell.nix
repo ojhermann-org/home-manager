@@ -1,7 +1,7 @@
 { pkgs, lib, ... }:
 
 let
-  gst      = import ../packages/gst.nix       { inherit pkgs; };
+  gst = import ../packages/gst.nix { inherit pkgs; };
   watchDir = import ../packages/watch-dir.nix { inherit pkgs gst; };
 
   switchDarwinAarch64 = pkgs.writeShellApplication {
@@ -51,11 +51,23 @@ let
   };
 in
 {
-  home.packages =
-    [ pkgs.coreutils gst newPyDir newZsh newBash watchDir ]
-    ++ lib.optional (pkgs.stdenv.hostPlatform.isDarwin && pkgs.stdenv.hostPlatform.isAarch64) switchDarwinAarch64
-    ++ lib.optional (pkgs.stdenv.hostPlatform.isLinux  && pkgs.stdenv.hostPlatform.isx86_64)  switchLinuxX86_64
-    ++ lib.optional (pkgs.stdenv.hostPlatform.isLinux  && pkgs.stdenv.hostPlatform.isAarch64) switchLinuxAarch64;
+  home.packages = [
+    pkgs.coreutils
+    gst
+    newPyDir
+    newZsh
+    newBash
+    watchDir
+  ]
+  ++ lib.optional (
+    pkgs.stdenv.hostPlatform.isDarwin && pkgs.stdenv.hostPlatform.isAarch64
+  ) switchDarwinAarch64
+  ++ lib.optional (
+    pkgs.stdenv.hostPlatform.isLinux && pkgs.stdenv.hostPlatform.isx86_64
+  ) switchLinuxX86_64
+  ++ lib.optional (
+    pkgs.stdenv.hostPlatform.isLinux && pkgs.stdenv.hostPlatform.isAarch64
+  ) switchLinuxAarch64;
 
   home.activation.sudoByTouch = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (
     lib.hm.dag.entryAfter [ "writeBoundary" ] (builtins.readFile ./shell/scripts/sudo-by-touch.sh)

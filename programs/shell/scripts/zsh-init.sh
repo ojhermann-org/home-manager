@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 function git-details {
 	branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
 	if [[ -z "$branch" ]]; then
@@ -8,6 +9,8 @@ function git-details {
 		echo "%F{white}| %F{green}⎇ ${branch} %f"
 	fi
 }
+# shellcheck disable=SC2169
 setopt PROMPT_SUBST
+# shellcheck disable=SC2016
 export PROMPT='%F{yellow}%n@%m %F{white}| %F{cyan}%~ %F{white}| %F{magenta}%D{%Y-%m-%d %H:%M:%S} $(git-details)
 %F{white}> %f'

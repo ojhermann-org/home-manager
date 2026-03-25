@@ -2,7 +2,11 @@
 
 pkgs.writeShellApplication {
   name = "watch-dir";
-  runtimeInputs = [ pkgs.git pkgs.watchexec gst ];
+  runtimeInputs = [
+    pkgs.git
+    pkgs.watchexec
+    gst
+  ];
   text = ''
     if git rev-parse --git-dir >/dev/null 2>&1; then
       git_dir=$(git rev-parse --absolute-git-dir)
