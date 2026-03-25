@@ -12,6 +12,19 @@
   outputs =
     { nixpkgs, home-manager, ... }:
     let
+      systems = [
+        "aarch64-darwin"
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+      forEachSystem =
+        f:
+        builtins.listToAttrs (
+          map (system: {
+            name = system;
+            value = f system;
+          }) systems
+        );
       mkConfig =
         system:
         home-manager.lib.homeManagerConfiguration {
@@ -25,5 +38,8 @@
         "otto@x86_64-linux" = mkConfig "x86_64-linux";
         "otto@aarch64-linux" = mkConfig "aarch64-linux";
       };
+      devShells = forEachSystem (system: {
+        default = nixpkgs.legacyPackages.${system}.mkShell { };
+      });
     };
 }
