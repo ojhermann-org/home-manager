@@ -13,8 +13,8 @@ hooks = [
 [[repos]]
 repo = "local"
 hooks = [
-  {id = "nixfmt",    name = "nixfmt",    entry = "nixfmt --check", language = "system", files = "\\.nix$"},
-  {id = "statix",    name = "statix",    entry = "statix check",   language = "system", pass_filenames = false},
-  {id = "deadnix",   name = "deadnix",   entry = "deadnix --fail", language = "system", files = "\\.nix$"},
+  {id = "nixfmt",    name = "nixfmt",    entry = "nixfmt",        language = "system", files = "\\.nix$"},
+  {id = "statix",    name = "statix",    entry = "statix fix",    language = "system", pass_filenames = false},
+  {id = "deadnix",   name = "deadnix",   entry = "deadnix --edit", language = "system", files = "\\.nix$"},
   {id = "shellcheck", name = "shellcheck", entry = "shellcheck",   language = "system", files = "\\.sh$"},
 ]
