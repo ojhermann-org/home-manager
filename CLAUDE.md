@@ -150,9 +150,9 @@ These run tools that are installed via home-manager packages:
 
 | Hook | Tool | What it checks |
 |------|------|----------------|
-| `nixfmt` | `nixfmt --check` | Nix files are correctly formatted |
-| `statix` | `statix check` | Nix anti-patterns and lints |
-| `deadnix` | `deadnix --fail` | Unused bindings in Nix files |
+| `nixfmt` | `nixfmt` | Auto-formats Nix files in place |
+| `statix` | `statix fix` | Auto-fixes Nix anti-patterns in place |
+| `deadnix` | `deadnix --edit` | Auto-removes unused Nix bindings in place |
 | `shellcheck` | `shellcheck` | Shell script correctness |
 
 `statix` and `deadnix` are installed by `programs/hx/nix.nix`.
