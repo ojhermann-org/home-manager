@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cmd=$(jq -r '.tool_input.command'); if echo \"$cmd\" | grep -q 'gh pr create'; then (cd \"$(git rev-parse --show-toplevel)\" && nix flake update); fi",
+            "command": "cmd=$(jq -r '.tool_input.command'); if echo \"$cmd\" | grep -q 'gh pr create'; then root=$(git rev-parse --show-toplevel) && cd \"$root\" && nix flake update; if ! git diff --quiet flake.lock; then branch=$(git rev-parse --abbrev-ref HEAD); if [ \"$branch\" = \"main\" ]; then echo \"ERROR: flake.lock changed but current branch is main -- cannot commit. Aborting PR creation.\" >&2; exit 1; fi; git add flake.lock && git commit -m 'chore: update flake.lock'; fi; fi",
             "statusMessage": "Running nix flake update..."
           }
         ]
