@@ -10,6 +10,13 @@
       name = "hcl";
       auto-format = true;
       language-servers = [ "terraform-ls" ];
+      formatter = {
+        command = "tofu";
+        args = [
+          "fmt"
+          "-"
+        ];
+      };
     }
   ];
 }
