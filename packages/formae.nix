@@ -14,11 +14,6 @@ let
       arch = "arm64";
       hash = "sha256-3240F6ujtvGSHVju/IxRdHjtGtJ7+s5S9Hgi70E5Sh0=";
     };
-    "x86_64-linux" = {
-      os = "linux";
-      arch = "x86-64";
-      hash = "sha256-7NRvtpC1qcbLJ4q6lpKTFNG8Ekf2nr1vPRNwON47o2s=";
-    };
   };
 
   platform = platforms.${pkgs.stdenv.hostPlatform.system};
@@ -51,7 +46,6 @@ pkgs.stdenv.mkDerivation {
     platforms = [
       "aarch64-darwin"
       "aarch64-linux"
-      "x86_64-linux"
     ];
   };
 }
