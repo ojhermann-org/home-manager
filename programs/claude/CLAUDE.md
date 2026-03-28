@@ -2,6 +2,10 @@
 
 <!-- Preferences, conventions, and instructions that apply across all projects. -->
 
+## Git workflow
+
+Unless instructed otherwise, all changes must be committed on a branch other than `main` and merged via a PR. Prefer small, focused PRs over larger ones.
+
 ## Git hooks
 
 Each repo should include a `prek.toml` to manage pre-commit hooks via [prek](https://github.com/j178/prek). The `ojhermann/home-manager` repo is a good reference for hook configuration.
