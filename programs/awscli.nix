@@ -1,8 +1,29 @@
 { pkgs, lib, ... }:
+
+let
+  jump = pkgs.writeShellApplication {
+    name = "jump";
+    runtimeInputs = [
+      pkgs.awscli2
+      pkgs.ssm-session-manager-plugin
+    ];
+    text = ''
+      aws ssm start-session \
+        --target "$(aws ec2 describe-instances \
+          --profile otto-management \
+          --filters "Name=tag:Name,Values=shared-jump-box-management" \
+                    "Name=instance-state-name,Values=running" \
+          --query "Reservations[0].Instances[0].InstanceId" \
+          --output text)" \
+        --profile otto-management
+    '';
+  };
+in
 {
   home.packages = [
     pkgs.awscli2
     pkgs.ssm-session-manager-plugin
+    jump
   ];
 
   home.file.".aws/config".text = lib.generators.toINI { } {
