@@ -241,7 +241,6 @@ Defined in `shell/scripts/zsh-init.sh` (zsh) and `shell/scripts/bash-init.sh`
 - **`inputs.nixpkgs.follows`** in `flake.nix` ensures Home Manager and the top-
   level config share the same nixpkgs, avoiding duplicate package sets.
 - **Editor**: `EDITOR` and `VISUAL` are set to `hx` (Helix).
-- **`/opt/pel/formae/bin`** is on `home.sessionPath` (machine-specific tooling).
 - **`sudo-by-touch`** (Darwin only) — the post-activation hook edits
   `/etc/pam.d/sudo_local` to enable Touch ID for `sudo`. It requires `sudo`
   access and runs automatically after every `switch`.

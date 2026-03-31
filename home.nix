@@ -36,7 +36,6 @@ in
     stateVersion = "25.11"; # Please read the comment before changing.
     packages = [ ];
     file = { };
-    sessionPath = [ "/opt/pel/formae/bin" ];
     sessionVariables = {
       EDITOR = "hx";
       VISUAL = config.home.sessionVariables.EDITOR;
