@@ -61,14 +61,6 @@ let
     runtimeInputs = [ pkgs.coreutils ];
     text = builtins.readFile ./shell/scripts/new-bash.sh;
   };
-  newRepo = pkgs.writeShellApplication {
-    name = "new-repo";
-    runtimeInputs = [
-      pkgs.coreutils
-      pkgs.opentofu
-    ];
-    text = builtins.readFile ./shell/scripts/new-repo.sh;
-  };
 
   commonAliases = {
     date = "date +'%Y-%m-%d %H:%M:%S'";
@@ -86,7 +78,6 @@ in
     newPyDir
     newZsh
     newBash
-    newRepo
     watchDir
   ]
   ++ lib.optionals (pkgs.stdenv.hostPlatform.isDarwin && pkgs.stdenv.hostPlatform.isAarch64) [
