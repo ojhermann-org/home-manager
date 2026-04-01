@@ -122,6 +122,7 @@ language. They are plain HM modules (auto-imported) that extend
 | `new-py-dir` | Create a directory tree and add `__init__.py` to each new dir |
 | `new-zsh`    | Scaffold a new zsh script file |
 | `new-bash`   | Scaffold a new bash script file |
+| `new-repo`   | Add a new GitHub repo via the github-settings OpenTofu config (`--name`, `--description`, optional `--checks`) |
 
 ## Git hooks (prek)
 
