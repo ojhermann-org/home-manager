@@ -62,6 +62,21 @@ let
     text = builtins.readFile ./shell/scripts/new-bash.sh;
   };
 
+  updateClaudeCode = pkgs.writeShellApplication {
+    name = "update-claude-code";
+    runtimeInputs = [ pkgs.curl pkgs.jq pkgs.git pkgs.gnused ];
+    text = builtins.readFile ./shell/scripts/update-claude-code.sh;
+  };
+
+  update = pkgs.writeShellApplication {
+    name = "update";
+    runtimeInputs = [ updateClaudeCode ];
+    text = ''
+      update-claude-code
+      nix flake update
+    '';
+  };
+
   commonAliases = {
     date = "date +'%Y-%m-%d %H:%M:%S'";
     grep = "grep -i --color=auto";
@@ -79,6 +94,8 @@ in
     newZsh
     newBash
     watchDir
+    updateClaudeCode
+    update
   ]
   ++ lib.optionals (pkgs.stdenv.hostPlatform.isDarwin && pkgs.stdenv.hostPlatform.isAarch64) [
     switchDarwinAarch64
@@ -97,7 +114,7 @@ in
     lib.hm.dag.entryAfter [ "writeBoundary" ] (builtins.readFile ./shell/scripts/sudo-by-touch.sh)
   );
 
-  programs.zsh = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+  programs.zsh = {
     enable = true;
     history = {
       size = 200;
