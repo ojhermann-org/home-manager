@@ -6,7 +6,7 @@ _:
     nix-direnv.enable = true;
     config = {
       whitelist = {
-        prefix = [ "/Users/otto/Documents" ];
+        prefix = [ "/Users/otto/Documents" "/home/otto/Documents" ];
       };
     };
   };
