@@ -43,6 +43,8 @@ Before creating a new repo, confirm with the user:
 
 When making changes to `ojhermann-org/github-settings`, always run `tofu init`, `tofu validate`, and `tofu plan` before committing. Ask the user to run `tofu apply` after merging (this can be done via the GitHub Actions UI).
 
+New repositories default to Nix flakes as the package manager unless the user specifies otherwise. When using Nix flakes, add a `.envrc` containing `use flake` so direnv activates the environment automatically.
+
 ## Configuration management
 
 Config, dotfiles, and tooling are managed via Home Manager in the `ojhermann/home-manager` repo. Barring exceptional circumstances, changes should be made there rather than editing files directly.
