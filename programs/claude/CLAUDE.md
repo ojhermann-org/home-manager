@@ -8,7 +8,30 @@ Unless instructed otherwise, all changes must be committed on a branch other tha
 
 ## Git hooks
 
-Each repo should include a `prek.toml` to manage pre-commit hooks via [prek](https://github.com/j178/prek). The `ojhermann/home-manager` repo is a good reference for hook configuration.
+Each repo must include a `prek.toml` to manage pre-commit hooks via [prek](https://github.com/j178/prek). After creating `prek.toml`, run `prek install` to activate the hooks.
+
+Every `prek.toml` should include these builtins at minimum:
+
+```toml
+[[repos]]
+repo = "builtin"
+hooks = [
+  {id = "no-commit-to-branch"},
+  {id = "trailing-whitespace"},
+  {id = "end-of-file-fixer"},
+  {id = "check-merge-conflict"},
+  {id = "check-toml"},
+  {id = "check-json"},
+  {id = "check-yaml"},
+  {id = "check-xml"},
+  {id = "check-added-large-files"},
+  {id = "check-case-conflict"},
+  {id = "mixed-line-ending"},
+  {id = "detect-private-key"},
+]
+```
+
+Add local hooks as appropriate for the languages in the repo (e.g. `nixfmt`/`statix`/`deadnix` for Nix, `shellcheck` for shell scripts). See `ojhermann/home-manager` for examples.
 
 ## Configuration management
 
