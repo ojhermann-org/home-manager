@@ -29,3 +29,14 @@ jobs:
 
       - name: Build x86_64-linux configuration
         run: nix build .#homeConfigurations."otto@x86_64-linux".activationPackage --no-link
+
+  ci:
+    needs: [lint, build]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check all jobs passed
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" || "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            exit 1
+          fi
