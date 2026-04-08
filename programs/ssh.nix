@@ -3,6 +3,7 @@
 {
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;
     # The jump-box entry is Darwin-only: the jump box itself does not need
     # an SSM proxy to connect to itself.
     matchBlocks = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
