@@ -6,6 +6,14 @@
     # The jump-box entry is Darwin-only: the jump box itself does not need
     # an SSM proxy to connect to itself.
     matchBlocks = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+      "github.com" = {
+        hostname = "github.com";
+        identityFile = "~/.ssh/id_ed25519";
+        extraOptions = {
+          AddKeysToAgent = "yes";
+          UseKeychain = "yes";
+        };
+      };
       "jump-box" = {
         # HostName is unused by the ProxyCommand; the command resolves the
         # instance ID dynamically by tag so no config change is needed when
