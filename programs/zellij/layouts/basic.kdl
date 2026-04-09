@@ -1,5 +1,5 @@
 layout {
-    tab name="basic" focus=true hide_floating_panes=true {
+    tab name="main" focus=true hide_floating_panes=true {
         pane size=1 borderless=true {
             plugin location="zellij:tab-bar"
         }
@@ -8,11 +8,11 @@ layout {
                 start_suspended false
             }
             pane size="60%" {
-                pane name="zsh" focus=true size="50%" {
-
-                }
                 pane command="hx" name="hx" size="50%" {
                     start_suspended false
+                }
+                pane name="zsh" focus=true size="50%" {
+
                 }
             }
         }
