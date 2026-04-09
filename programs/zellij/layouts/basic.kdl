@@ -1,20 +1,17 @@
 layout {
-    tab name="basic" focus=true hide_floating_panes=true {
+    tab name="main" focus=true hide_floating_panes=true {
         pane size=1 borderless=true {
             plugin location="zellij:tab-bar"
         }
         pane split_direction="vertical" {
-            pane command="watch-dir" name="dir" size="20%" {
+            pane command="claude" name="claude" size="40%" {
                 start_suspended false
             }
-            pane size="80%" {
-                pane command="claude" name="claude" size="33%" {
+            pane size="60%" {
+                pane command="hx" name="hx" size="50%" {
                     start_suspended false
                 }
-                pane command="hx" name="hx" size="33%" {
-                    start_suspended false
-                }
-                pane name="zsh" focus=true size="33%" {
+                pane name="zsh" focus=true size="50%" {
 
                 }
             }
