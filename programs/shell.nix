@@ -82,6 +82,7 @@ let
   };
 
   commonAliases = {
+    ct = "tree -aC --gitignore -I \".terraform|.git\"";
     date = "date +'%Y-%m-%d %H:%M:%S'";
     grep = "grep -i --color=auto";
     gs = "git status -sb";
@@ -124,7 +125,9 @@ in
       ignoreDups = true;
     };
     shellAliases = commonAliases;
-    initContent = builtins.readFile ./shell/scripts/zsh-init.sh;
+    initContent = (builtins.readFile ./shell/scripts/zsh-init.sh) + ''
+      compdef ct=tree
+    '';
   };
 
   programs.bash = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
