@@ -1,1 +1,21 @@
-{}
+{
+  "permissions": {
+    "allow": [
+      "Bash(aws configure:*)",
+      "Bash(aws ec2:*)",
+      "Bash(curl *)",
+      "Bash(gh *)",
+      "Bash(git *)",
+      "Bash(home-manager *)",
+      "Bash(mise *)",
+      "Bash(nix *)",
+      "Bash(prek *)",
+      "Bash(python *)",
+      "Bash(tofu *)",
+      "Bash(uv *)"
+    ],
+    "deny": [
+      "Bash(tofu apply*)"
+    ]
+  }
+}
