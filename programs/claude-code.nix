@@ -18,7 +18,7 @@ in
     enable = true;
     package = claudeCode;
 
-    memory.source = ./claude/CLAUDE.md;
+    context = ./claude/CLAUDE.md;
 
     settings = {
       permissions = {
