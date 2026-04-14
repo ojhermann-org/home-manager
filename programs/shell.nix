@@ -131,9 +131,14 @@ in
       ignoreDups = true;
     };
     shellAliases = commonAliases // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin darwinAliases;
-    initContent = (builtins.readFile ./shell/scripts/zsh-init.sh) + ''
-      compdef ct=tree
-    '';
+    initContent =
+      (builtins.readFile ./shell/scripts/zsh-init.sh)
+      + ''
+        compdef ct=tree
+      ''
+      + lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
+        ulimit -Ss 61440
+      '';
   };
 
   programs.bash = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
@@ -141,6 +146,8 @@ in
     historySize = 200;
     historyControl = [ "ignoredups" ];
     shellAliases = commonAliases;
-    initExtra = builtins.readFile ./shell/scripts/bash-init.sh;
+    initExtra = (builtins.readFile ./shell/scripts/bash-init.sh) + ''
+      ulimit -Ss 61440
+    '';
   };
 }
