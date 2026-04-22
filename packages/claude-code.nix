@@ -13,7 +13,7 @@ let
   sources = {
     "aarch64-darwin" = {
       pkg = "darwin-arm64";
-      hash = "sha256-mpkawSVoKmQKyR52K7M36VIiDIIr9YqbUM7sDD6BjEs=";
+      hash = "sha256-MHGn2ZRUAIX6N8hzRZ95nCmNAQ9BwBGEqkEn3oylBWQ=";
     };
     "x86_64-linux" = {
       pkg = "linux-x64";
@@ -36,7 +36,6 @@ stdenv.mkDerivation {
   src = fetchzip {
     url = "https://registry.npmjs.org/@anthropic-ai/claude-code-${src_info.pkg}/-/claude-code-${src_info.pkg}-${version}.tgz";
     inherit (src_info) hash;
-    stripRoot = false;
   };
 
   nativeBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [ autoPatchelfHook ];
@@ -53,7 +52,7 @@ stdenv.mkDerivation {
     runHook preInstall
 
     mkdir -p $out/bin
-    cp package/claude $out/bin/claude
+    cp claude $out/bin/claude
     chmod +x $out/bin/claude
 
     runHook postInstall
