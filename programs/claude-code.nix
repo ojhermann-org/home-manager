@@ -5,8 +5,7 @@ let
     inherit (pkgs)
       stdenv
       fetchzip
-      makeWrapper
-      nodejs
+      autoPatchelfHook
       procps
       bubblewrap
       socat

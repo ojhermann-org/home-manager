@@ -2,48 +2,59 @@
   lib,
   stdenv,
   fetchzip,
-  makeWrapper,
-  nodejs,
+  autoPatchelfHook,
   procps,
   bubblewrap,
   socat,
 }:
-stdenv.mkDerivation (finalAttrs: {
-  pname = "claude-code";
+let
   version = "2.1.117";
 
-  src = fetchzip {
-    url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${finalAttrs.version}.tgz";
-    hash = "sha256-8dRSs6GCwX1bfpz5tKzk6OhmG0aFfcvQOgv2+VK04gg=";
+  sources = {
+    "aarch64-darwin" = {
+      pkg = "darwin-arm64";
+      hash = "sha256-mpkawSVoKmQKyR52K7M36VIiDIIr9YqbUM7sDD6BjEs=";
+    };
+    "x86_64-linux" = {
+      pkg = "linux-x64";
+      hash = "sha256-XaGBC9WQ2f1bOINC27oK5Xyk/+FuJYixilPfj6eRp8w=";
+    };
+    "aarch64-linux" = {
+      pkg = "linux-arm64";
+      hash = "sha256-bueyoEK4WCiUsLBPj+pclK1ukiWahIhuKV4UA5hxC6w=";
+    };
   };
 
-  nativeBuildInputs = [ makeWrapper ];
+  src_info =
+    sources.${stdenv.hostPlatform.system}
+      or (throw "Unsupported platform: ${stdenv.hostPlatform.system}");
+in
+stdenv.mkDerivation {
+  pname = "claude-code";
+  inherit version;
+
+  src = fetchzip {
+    url = "https://registry.npmjs.org/@anthropic-ai/claude-code-${src_info.pkg}/-/claude-code-${src_info.pkg}-${version}.tgz";
+    inherit (src_info) hash;
+    stripRoot = false;
+  };
+
+  nativeBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [ autoPatchelfHook ];
+
+  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
+    procps
+    bubblewrap
+    socat
+  ];
 
   dontBuild = true;
 
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $out/lib/claude-code $out/bin
-
-    cp cli.js $out/lib/claude-code/
-    substituteInPlace $out/lib/claude-code/cli.js \
-      --replace-fail '#!/bin/sh' '#!/usr/bin/env sh'
-
-    makeWrapper ${nodejs}/bin/node $out/bin/claude \
-      --add-flags "$out/lib/claude-code/cli.js" \
-      --set DISABLE_AUTOUPDATER 1 \
-      --set DISABLE_INSTALLATION_CHECKS 1 \
-      --unset DEV \
-      --prefix PATH : ${
-        lib.makeBinPath (
-          [ procps ]
-          ++ lib.optionals stdenv.hostPlatform.isLinux [
-            bubblewrap
-            socat
-          ]
-        )
-      }
+    mkdir -p $out/bin
+    cp package/claude $out/bin/claude
+    chmod +x $out/bin/claude
 
     runHook postInstall
   '';
@@ -53,6 +64,10 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "https://github.com/anthropics/claude-code";
     license = lib.licenses.unfree;
     mainProgram = "claude";
-    platforms = lib.platforms.unix;
+    platforms = [
+      "aarch64-darwin"
+      "x86_64-linux"
+      "aarch64-linux"
+    ];
   };
-})
+}
