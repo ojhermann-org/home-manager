@@ -98,6 +98,8 @@ let
   };
 in
 {
+  home.sessionPath = [ "$HOME/.local/bin" ];
+
   home.packages = [
     pkgs.coreutils
     gst
