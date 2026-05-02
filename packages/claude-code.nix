@@ -17,7 +17,7 @@ let
     };
     "x86_64-linux" = {
       pkg = "linux-x64";
-      hash = "sha256-Il9MGrnnIV3i86cU3BjslGEdVodnV50VW3f2DEjSlMk=";
+      hash = "sha256-RTei2TOHb4OB9RTWILLuYDnwJT2PxyAwn3TwASOFYIc=";
     };
     "aarch64-linux" = {
       pkg = "linux-arm64";
