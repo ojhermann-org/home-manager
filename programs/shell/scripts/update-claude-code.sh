@@ -22,11 +22,21 @@ fi
 
 echo "claude-code: $current_version -> $latest_version"
 
-tarball_url="https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${latest_version}.tgz"
-raw_hash=$(nix-prefetch-url --unpack "$tarball_url" 2>/dev/null)
-sri_hash=$(nix hash to-sri --type sha256 "$raw_hash")
+fetch_sri_hash() {
+  local pkg="$1"
+  local url="https://registry.npmjs.org/@anthropic-ai/claude-code-${pkg}/-/claude-code-${pkg}-${latest_version}.tgz"
+  local raw_hash
+  raw_hash=$(nix-prefetch-url --unpack "$url" 2>/dev/null)
+  nix hash to-sri --type sha256 "$raw_hash"
+}
+
+darwin_arm64_hash=$(fetch_sri_hash "darwin-arm64")
+linux_x64_hash=$(fetch_sri_hash "linux-x64")
+linux_arm64_hash=$(fetch_sri_hash "linux-arm64")
 
 sed -i "s|version = \"${current_version}\";|version = \"${latest_version}\";|" "$nix_file"
-sed -i "s|hash = \"sha256-[^\"]*\";|hash = \"${sri_hash}\";|" "$nix_file"
+sed -i "/pkg = \"darwin-arm64\"/{n;s|hash = \"sha256-[^\"]*\";|hash = \"${darwin_arm64_hash}\";|}" "$nix_file"
+sed -i "/pkg = \"linux-x64\"/{n;s|hash = \"sha256-[^\"]*\";|hash = \"${linux_x64_hash}\";|}" "$nix_file"
+sed -i "/pkg = \"linux-arm64\"/{n;s|hash = \"sha256-[^\"]*\";|hash = \"${linux_arm64_hash}\";|}" "$nix_file"
 
 echo "claude-code: updated to $latest_version"
