@@ -1,5 +1,10 @@
 # shellcheck shell=bash
 
+force=false
+if [[ "${1:-}" == "--force" ]]; then
+  force=true
+fi
+
 repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
 if [[ -z "$repo_root" ]]; then
   echo "update-claude-code: not inside a git repository" >&2
@@ -15,7 +20,7 @@ fi
 current_version=$(grep 'version = "' "$nix_file" | sed 's/.*version = "\(.*\)";/\1/')
 latest_version=$(curl -fsSL https://registry.npmjs.org/@anthropic-ai/claude-code/latest | jq -r .version)
 
-if [[ "$current_version" == "$latest_version" ]]; then
+if [[ "$current_version" == "$latest_version" ]] && [[ "$force" == false ]]; then
   echo "claude-code: already at $latest_version"
   exit 0
 fi
