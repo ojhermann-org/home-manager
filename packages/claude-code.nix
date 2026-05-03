@@ -13,7 +13,7 @@ let
   sources = {
     "aarch64-darwin" = {
       pkg = "darwin-arm64";
-      hash = "sha256-Il9MGrnnIV3i86cU3BjslGEdVodnV50VW3f2DEjSlMk=";
+      hash = "sha256-UKgwm0AGcO7fFZttIUR4LEQAH2NRfjerV7IByp3Nbqk=";
     };
     "x86_64-linux" = {
       pkg = "linux-x64";
@@ -21,7 +21,7 @@ let
     };
     "aarch64-linux" = {
       pkg = "linux-arm64";
-      hash = "sha256-Il9MGrnnIV3i86cU3BjslGEdVodnV50VW3f2DEjSlMk=";
+      hash = "sha256-RTBJeh99Yiqdq5sNPLRENGD5mOapW3t9FkDlW+MiAQQ=";
     };
   };
 
