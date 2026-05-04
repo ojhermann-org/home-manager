@@ -35,15 +35,9 @@ Add local hooks as appropriate for the languages in the repo (e.g. `nixfmt`/`sta
 
 ## GitHub repositories
 
-New repositories for the `ojhermann-org` organization are created by adding them to `ojhermann-org/github-settings` (managed with OpenTofu) and running `tofu apply`. Do not create repos via the GitHub UI.
+New repositories for the `ojhermann-org` organization are created via the `/new-repo` skill, which handles the github-settings PR, the Apply workflow, and the initial scaffolding (Nix flake, prek, Helix config, CI). Do not create repos via the GitHub UI, and do not edit `ojhermann-org/github-settings` by hand to add a repo unless `/new-repo` is unavailable.
 
-Before creating a new repo, confirm with the user:
-- **Visibility**: public or private?
-- **CI**: should a GitHub Actions workflow be added at creation to run prek's builtin hooks on PRs? Default to yes — it guards against contributors who skip `prek install` locally. If yes, add the workflow to the new repo as part of the same setup, running `prek run --all-files`.
-
-When making changes to `ojhermann-org/github-settings`, always run `tofu init`, `tofu validate`, and `tofu plan` before committing. Ask the user to run `tofu apply` after merging (this can be done via the GitHub Actions UI).
-
-New repositories default to Nix flakes as the package manager unless the user specifies otherwise. When using Nix flakes, add a `.envrc` containing `use flake` so direnv activates the environment automatically.
+When making other changes to `ojhermann-org/github-settings` (org settings, modules, ruleset edits, etc.), always run `tofu init`, `tofu validate`, and `tofu plan` before committing. After merging, trigger the Apply workflow via the Actions tab — it is `workflow_dispatch`-only and does not run automatically on merge.
 
 ## Helix editor
 
