@@ -24,6 +24,7 @@ Prompt the user for the following. Use the defaults shown unless the user overri
 | `license_template` | no | `apache-2.0` | GitHub license keyword (e.g. `mit`, `apache-2.0`, `gpl-3.0`). |
 | `homepage_url` | no | empty | Optional URL for the repo homepage. |
 | `language` | no | `nix-flake` | `nix-flake` (default scaffolding) or `none` (CI + prek only). |
+| `use_direnv` | no | `yes` | `yes` adds a `.envrc` and runs `direnv allow` after scaffolding. With `language == "nix-flake"` the `.envrc` contains `use flake` so the dev shell activates on `cd`. |
 
 ### Name validation
 
@@ -130,11 +131,23 @@ Substitute `<description>` with the user's description (use `"TBD"` if empty).
 
 ### `.envrc`
 
-```
-use flake
-```
+Only write this file if `use_direnv == "yes"`.
+
+- If `language == "nix-flake"`, the contents are:
+
+  ```
+  use flake
+  ```
+
+- If `language == "none"`, write a placeholder so `direnv allow` has something to permit:
+
+  ```
+  # Add direnv directives here. See https://direnv.net/man/direnv-stdlib.1.html
+  ```
 
 ### `.gitignore`
+
+Always include `.direnv/` even when `use_direnv == "no"`, so other contributors who do use direnv don't accidentally commit it.
 
 ```
 .direnv/
@@ -213,11 +226,7 @@ prek.toml          # Pre-commit hooks
 
 ## Development
 
-`direnv` picks up `.envrc` automatically. To enter the dev shell manually:
-
-\`\`\`
-nix develop
-\`\`\`
+<DEV_SECTION>
 
 Activate the git hooks once after cloning:
 
@@ -228,12 +237,36 @@ prek install
 
 Substitute `<name>` and `<description>`. Replace the literal `\`\`\`` sequences with real triple backticks when writing the file (they are escaped here only to avoid breaking this skill's own markdown).
 
+Replace `<DEV_SECTION>` with one of:
+
+- `language == "nix-flake"` and `use_direnv == "yes"`:
+
+  ```
+  `direnv` picks up `.envrc` automatically. To enter the dev shell manually:
+
+  \`\`\`
+  nix develop
+  \`\`\`
+  ```
+
+- `language == "nix-flake"` and `use_direnv == "no"`:
+
+  ```
+  Enter the dev shell with:
+
+  \`\`\`
+  nix develop
+  \`\`\`
+  ```
+
+- `language == "none"`: omit the dev shell paragraph entirely; just keep the `prek install` line.
+
 ## Phase 6: Activate hooks and run prek
 
 In `~/Documents/<name>`:
 
 1. `prek install` — activates the hooks for this clone.
-2. `direnv allow` — only if `language == "nix-flake"`.
+2. `direnv allow` — only if `use_direnv == "yes"`.
 3. `prek run -a` — verifies the scaffolded files pass all hooks. If any file is auto-fixed, leave it staged for the upcoming commit.
 
 If `prek run -a` fails after one round of auto-fixes, stop and report the error. Do not open the scaffolding PR with failing hooks.
