@@ -23,6 +23,7 @@ Prompt the user for the following. Use the defaults shown unless the user overri
 | `visibility` | no | `public` | `public` or `private`. |
 | `license_template` | no | `apache-2.0` | GitHub license keyword (e.g. `mit`, `apache-2.0`, `gpl-3.0`). |
 | `homepage_url` | no | empty | Optional URL for the repo homepage. |
+| `topics` | no | empty | Comma-separated list of GitHub topic tags (e.g. `nix,home-manager,dotfiles`). Used for discoverability — especially worth setting on public repos. Each topic must match GitHub's rules (lowercase, alphanumeric, hyphens, max 50 chars). |
 | `language` | no | `nix-flake` | `nix-flake` (default scaffolding) or `none` (CI + prek only). |
 | `use_direnv` | no | `yes` | `yes` adds a `.envrc` and runs `direnv allow` after scaffolding. With `language == "nix-flake"` the `.envrc` contains `use flake` so the dev shell activates on `cd`. |
 
@@ -49,6 +50,7 @@ Operate in `~/Documents/github-settings`. Stop on any failure.
      visibility       = "<visibility>"         # omit if "public"
      license_template = "<license_template>"   # omit if "apache-2.0"
      homepage_url     = "<homepage_url>"       # omit if empty
+     topics           = ["<t1>", "<t2>"]       # omit if no topics provided
    }
    ```
 
