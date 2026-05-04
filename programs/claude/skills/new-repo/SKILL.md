@@ -67,26 +67,36 @@ Operate in `~/Documents/github-settings`. Stop on any failure.
 7. Commit with message `feat: add <name> repository`. Use a HEREDOC body that lists the inputs (visibility, license, description) and notes that the plan was clean.
 8. `git -C ~/Documents/github-settings push -u origin feat/<name>`.
 9. `gh pr create --title "feat: add <name> repository" --body "..."`. Body should summarise the inputs and link to the plan summary.
-10. **Pause and wait for the user.** Display:
+10. **Pause for merge.** Display:
 
     ```
-    Next steps for you:
-      1. Merge https://github.com/ojhermann-org/github-settings/pull/<N>
-      2. Trigger the "Apply" workflow on github-settings via the Actions tab
-         (workflow_dispatch — it does not run automatically on merge)
-      3. Reply here once the apply has completed successfully
+    Merge https://github.com/ojhermann-org/github-settings/pull/<N>, then reply when done.
+    I will trigger and watch the Apply workflow once you confirm.
     ```
 
-    Do not proceed until the user confirms.
+    Do not proceed until the user confirms the merge.
 
-## Phase 4: Post-merge cleanup on github-settings
+## Phase 4: Apply and verify
 
-After the user confirms the apply succeeded:
+After the user confirms the merge:
 
-1. Run the `post-pr` skill against `~/Documents/github-settings` (or do its steps manually: checkout main, `git up`, `git branch -D feat/<name>`).
-2. Verify the repo now exists on GitHub: `gh repo view ojhermann-org/<name> --json name,visibility,licenseInfo`. Confirm visibility and license match the inputs.
+1. Trigger the Apply workflow against `main`:
+   ```
+   gh workflow run apply.yml --repo ojhermann-org/github-settings --ref main
+   ```
+2. Wait a few seconds for the run to register, then capture the run ID:
+   ```
+   gh run list --repo ojhermann-org/github-settings --workflow=apply.yml --limit 1 --json databaseId,status,url
+   ```
+3. Stream the run to completion:
+   ```
+   gh run watch <run-id> --repo ojhermann-org/github-settings --exit-status
+   ```
+   `--exit-status` makes the command fail if the run fails. If it exits non-zero, stop and report the run URL — do not proceed to scaffolding.
+4. Run the `post-pr` skill against `~/Documents/github-settings` (or do its steps manually: checkout main, `git up`, `git branch -D feat/<name>`).
+5. Verify the repo now exists on GitHub: `gh repo view ojhermann-org/<name> --json name,visibility,licenseInfo`. Confirm visibility and license match the inputs.
 
-If the apply did not actually create the repo (e.g. because the user forgot to run the workflow), stop and ask them to run it.
+If the workflow run shows the repo was not actually created (e.g. tofu-side error), stop and ask the user to investigate.
 
 ## Phase 5: Clone and scaffold
 
