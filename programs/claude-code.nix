@@ -41,6 +41,7 @@ in
 
     skills."pre-pr" = ./claude/skills/pre-pr/SKILL.md;
     skills."post-pr" = ./claude/skills/post-pr/SKILL.md;
+    skills."new-repo" = ./claude/skills/new-repo/SKILL.md;
   };
 
   home.file.".claude/keybindings.json".source = ./claude/keybindings.json;
