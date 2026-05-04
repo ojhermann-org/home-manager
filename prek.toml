@@ -9,6 +9,9 @@ hooks = [
   {id = "check-json"},
   {id = "check-yaml"},
   {id = "check-xml"},
+  {id = "check-added-large-files"},
+  {id = "check-case-conflict"},
+  {id = "mixed-line-ending"},
   {id = "detect-private-key"},
 ]
 
