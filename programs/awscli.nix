@@ -3,7 +3,6 @@
 {
   home.packages = [
     pkgs.awscli2
-    pkgs.ssm-session-manager-plugin
   ];
 
   home.file.".aws/config".text = lib.generators.toINI { } {
