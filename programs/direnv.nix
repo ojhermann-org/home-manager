@@ -1,4 +1,4 @@
-_:
+{ config, ... }:
 
 {
   programs.direnv = {
@@ -7,8 +7,7 @@ _:
     config = {
       whitelist = {
         prefix = [
-          "/Users/otto/Documents"
-          "/home/otto/Documents"
+          config.home.homeDirectory
         ];
       };
     };
