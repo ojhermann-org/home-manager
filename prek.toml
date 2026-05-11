@@ -88,6 +88,13 @@ language = "system"
 name = "deadnix"
 
 [[repos.hooks]]
+entry = "yamlfmt -formatter retain_line_breaks=true"
+files = "\\.ya?ml$"
+id = "yamlfmt"
+language = "system"
+name = "yamlfmt"
+
+[[repos.hooks]]
 entry = "sh -c 'nix run .#sync-prek && git diff --exit-code prek.toml'"
 files = "^(prek\\.toml|packages/code-quality-tools/.*\\.nix|flake\\.nix|nix/prek-toml\\.nix)$"
 id = "prek-toml-up-to-date"
