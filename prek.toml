@@ -53,6 +53,13 @@ language = "system"
 name = "shfmt"
 
 [[repos.hooks]]
+entry = "prettier --write"
+files = "\\.md$"
+id = "prettier"
+language = "system"
+name = "prettier"
+
+[[repos.hooks]]
 entry = "nixfmt"
 files = "\\.nix$"
 id = "nixfmt"

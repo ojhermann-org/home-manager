@@ -16,16 +16,16 @@ Run all of the following. Stop and report any failure before prompting the user 
 
 Prompt the user for the following. Use the defaults shown unless the user overrides. After collecting, display a summary and ask the user to confirm before continuing.
 
-| Input | Required | Default | Notes |
-|---|---|---|---|
-| `name` | yes | — | GitHub repo name. Must match `^[a-z][a-z0-9-]*$` and not already exist as a module in `repositories.tf`. |
-| `description` | no | empty | One-sentence description shown on the repo page. |
-| `visibility` | no | `public` | `public` or `private`. |
-| `license_template` | no | `apache-2.0` | GitHub license keyword (e.g. `mit`, `apache-2.0`, `gpl-3.0`). |
-| `homepage_url` | no | empty | Optional URL for the repo homepage. |
-| `topics` | no | empty | Comma-separated list of GitHub topic tags (e.g. `nix,home-manager,dotfiles`). Used for discoverability — especially worth setting on public repos. Each topic must match GitHub's rules (lowercase, alphanumeric, hyphens, max 50 chars). |
-| `language` | no | `nix-flake` | `nix-flake` (default scaffolding) or `none` (CI + prek only). |
-| `use_direnv` | no | `yes` | `yes` adds a `.envrc` and runs `direnv allow` after scaffolding. With `language == "nix-flake"` the `.envrc` contains `use flake` so the dev shell activates on `cd`. |
+| Input              | Required | Default      | Notes                                                                                                                                                                                                                                     |
+| ------------------ | -------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`             | yes      | —            | GitHub repo name. Must match `^[a-z][a-z0-9-]*$` and not already exist as a module in `repositories.tf`.                                                                                                                                  |
+| `description`      | no       | empty        | One-sentence description shown on the repo page.                                                                                                                                                                                          |
+| `visibility`       | no       | `public`     | `public` or `private`.                                                                                                                                                                                                                    |
+| `license_template` | no       | `apache-2.0` | GitHub license keyword (e.g. `mit`, `apache-2.0`, `gpl-3.0`).                                                                                                                                                                             |
+| `homepage_url`     | no       | empty        | Optional URL for the repo homepage.                                                                                                                                                                                                       |
+| `topics`           | no       | empty        | Comma-separated list of GitHub topic tags (e.g. `nix,home-manager,dotfiles`). Used for discoverability — especially worth setting on public repos. Each topic must match GitHub's rules (lowercase, alphanumeric, hyphens, max 50 chars). |
+| `language`         | no       | `nix-flake`  | `nix-flake` (default scaffolding) or `none` (CI + prek only).                                                                                                                                                                             |
+| `use_direnv`       | no       | `yes`        | `yes` adds a `.envrc` and runs `direnv allow` after scaffolding. With `language == "nix-flake"` the `.envrc` contains `use flake` so the dev shell activates on `cd`.                                                                     |
 
 ### Name validation
 
@@ -261,6 +261,7 @@ jobs:
 The `ci` job is the required status check enforced by the org-level `default-branch` ruleset (`github-settings/organization.tf`). **Do not rename or remove it** — without a check named `ci` that succeeds, no PR can ever merge to `main`.
 
 Why `nix develop` rather than `nix profile install`:
+
 - **Single source of truth.** The flake's devShell defines the tool versions; CI and local dev use the same closure from the same `flake.lock`.
 - **Magic-nix-cache caches the closure.** Subsequent CI runs pull the evaluated devShell from GitHub Actions cache rather than rebuilding/redownloading per-package.
 
@@ -278,9 +279,9 @@ Why `nix develop` rather than `nix profile install`:
 ## Repo structure
 
 \`\`\`
-flake.nix          # Nix devShell
-prek.toml          # Pre-commit hooks
-.helix/            # Helix editor config
+flake.nix # Nix devShell
+prek.toml # Pre-commit hooks
+.helix/ # Helix editor config
 .github/workflows/ # CI
 \`\`\`
 

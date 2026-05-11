@@ -144,9 +144,9 @@ in place, so entering the shell on a fresh clone is enough to activate hooks.
 
 ## Custom commands installed by shell.nix
 
-| Command      | Description |
-|--------------|-------------|
-| `switch`     | Apply latest `main` config from GitHub (platform-specific) |
+| Command  | Description                                                |
+| -------- | ---------------------------------------------------------- |
+| `switch` | Apply latest `main` config from GitHub (platform-specific) |
 
 ## Git hooks (prek)
 
@@ -159,26 +159,26 @@ prek install
 
 ### Builtin hooks
 
-| Hook | Purpose |
-|------|---------|
-| `no-commit-to-branch` | Block direct commits to `main` |
-| `trailing-whitespace` | Strip trailing whitespace |
-| `end-of-file-fixer` | Ensure files end with a newline |
+| Hook                   | Purpose                            |
+| ---------------------- | ---------------------------------- |
+| `no-commit-to-branch`  | Block direct commits to `main`     |
+| `trailing-whitespace`  | Strip trailing whitespace          |
+| `end-of-file-fixer`    | Ensure files end with a newline    |
 | `check-merge-conflict` | Reject unresolved conflict markers |
-| `check-toml` | Validate TOML syntax |
-| `check-json` | Validate JSON syntax |
-| `detect-private-key` | Block accidental key commits |
+| `check-toml`           | Validate TOML syntax               |
+| `check-json`           | Validate JSON syntax               |
+| `detect-private-key`   | Block accidental key commits       |
 
 ### Local hooks
 
 These run tools that are installed via home-manager packages:
 
-| Hook | Tool | What it checks |
-|------|------|----------------|
-| `nixfmt` | `nixfmt` | Auto-formats Nix files in place |
-| `statix` | `statix fix` | Auto-fixes Nix anti-patterns in place |
-| `deadnix` | `deadnix --edit` | Auto-removes unused Nix bindings in place |
-| `shellcheck` | `shellcheck` | Shell script correctness |
+| Hook         | Tool             | What it checks                            |
+| ------------ | ---------------- | ----------------------------------------- |
+| `nixfmt`     | `nixfmt`         | Auto-formats Nix files in place           |
+| `statix`     | `statix fix`     | Auto-fixes Nix anti-patterns in place     |
+| `deadnix`    | `deadnix --edit` | Auto-removes unused Nix bindings in place |
+| `shellcheck` | `shellcheck`     | Shell script correctness                  |
 
 All four are installed via the per-language code-quality lists under
 `packages/code-quality-tools/` (`nix.nix` for `nixfmt`/`statix`/`deadnix`,
@@ -192,11 +192,11 @@ from the repo root to ensure the lock file is current before the PR is opened.
 
 ## Supported systems
 
-| Attribute                        | System         |
-|----------------------------------|----------------|
-| `otto@aarch64-darwin`            | macOS (Apple Silicon) |
-| `otto@x86_64-linux`              | Linux (x86)    |
-| `otto@aarch64-linux`             | Linux (ARM64)  |
+| Attribute             | System                |
+| --------------------- | --------------------- |
+| `otto@aarch64-darwin` | macOS (Apple Silicon) |
+| `otto@x86_64-linux`   | Linux (x86)           |
+| `otto@aarch64-linux`  | Linux (ARM64)         |
 
 ## Workflow
 
