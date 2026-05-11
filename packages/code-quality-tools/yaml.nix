@@ -3,5 +3,11 @@
   packages = [
     pkgs.yamlfmt
   ];
-  hooks = [ ];
+  hooks = [
+    {
+      id = "yamlfmt";
+      entry = "yamlfmt -formatter retain_line_breaks=true";
+      files = "\\.ya?ml$";
+    }
+  ];
 }
