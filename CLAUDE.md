@@ -23,7 +23,6 @@ programs/          # One .nix file per tool/program; each returns a HM module
   git.nix
   hx.nix           # Helix editor (top-level config)
   zellij.nix
-  mise.nix
   direnv.nix
   prek.nix         # Installs prek (hook runner)
   ...
@@ -148,7 +147,6 @@ in place, so entering the shell on a fresh clone is enough to activate hooks.
 | Command      | Description |
 |--------------|-------------|
 | `switch`     | Apply latest `main` config from GitHub (platform-specific) |
-| `new-py-dir` | Create a directory tree and add `__init__.py` to each new dir |
 
 ## Git hooks (prek)
 
