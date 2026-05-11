@@ -132,7 +132,13 @@ If `language == "nix-flake"`, write all files in this section. If `language == "
     {
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
-          packages = [ pkgs.prek ];
+          packages = [
+            pkgs.prek
+            pkgs.nixfmt
+            pkgs.statix
+            pkgs.deadnix
+            pkgs.shellcheck
+          ];
         };
       });
     };
@@ -189,6 +195,39 @@ formatter = { command = "nixfmt" }
 
 ### `.github/workflows/ci.yml`
 
+The `prek.toml` copied from home-manager has `language = "system"` hooks (`nixfmt`, `statix`, `deadnix`, `shellcheck`) that need those binaries on `PATH`. So the CI template differs by language: nix-flake repos run prek inside `nix develop` so the devShell provides the tools, with `magic-nix-cache-action` caching the closure across runs.
+
+If `language == "nix-flake"`:
+
+```yaml
+name: CI
+
+on:
+  pull_request:
+
+jobs:
+  prek:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v21
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
+      - run: nix develop -c prek run --all-files
+
+  ci:
+    needs: [prek]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check all jobs passed
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" || "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            exit 1
+          fi
+```
+
+If `language == "none"`:
+
 ```yaml
 name: CI
 
@@ -215,6 +254,10 @@ jobs:
 ```
 
 The `ci` job is the required status check enforced by the org-level `default-branch` ruleset (`github-settings/organization.tf`). **Do not rename or remove it** — without a check named `ci` that succeeds, no PR can ever merge to `main`.
+
+Why `nix develop` rather than `nix profile install`:
+- **Single source of truth.** The flake's devShell defines the tool versions; CI and local dev use the same closure from the same `flake.lock`.
+- **Magic-nix-cache caches the closure.** Subsequent CI runs pull the evaluated devShell from GitHub Actions cache rather than rebuilding/redownloading per-package.
 
 ### `CLAUDE.md`
 
