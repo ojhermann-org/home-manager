@@ -10,7 +10,6 @@ Run all of the following. Stop and report any failure before prompting the user 
 2. **gh authenticated**: `gh auth status` exits zero.
 3. **R2 / S3 backend creds**: both `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are set in the environment. Tofu cannot init the github-settings backend without them. If missing, instruct the user to export their R2 keys.
 4. **github-settings checkout**: `~/Documents/github-settings` exists, is a clean working tree, and is on `main`. If not on main or not clean, stop.
-5. **home-manager checkout**: `~/Documents/home-manager/prek.toml` exists. This file is the source of truth for the prek config copied into new repos.
 
 ## Phase 2: Inputs
 
@@ -106,9 +105,11 @@ If the workflow run shows the repo was not actually created (e.g. tofu-side erro
 2. `cd ~/Documents/<name>` (or use `git -C ~/Documents/<name>` for git, absolute paths for file writes).
 3. `git -C ~/Documents/<name> checkout -b chore/initial-scaffolding`.
 
-If `language == "nix-flake"`, write all files in this section. If `language == "none"`, write only `prek.toml`, `.github/workflows/ci.yml`, `.gitignore` (just `.envrc.local`), and `CLAUDE.md` (skeleton without Nix references).
+If `language == "nix-flake"`, write all files in this section _except_ `prek.toml` itself — that file is generated in Phase 6 by `nix run .#sync-prek`. If `language == "none"`, write only `prek.toml` (hand-written, see template below), `.github/workflows/ci.yml`, `.gitignore`, `CLAUDE.md`, and (if `use_direnv == "yes"`) `.envrc`.
 
 ### `flake.nix`
+
+The flake mirrors the Nix-driven prek pattern from `ojhermann/home-manager`: tool lists live in `packages/code-quality-tools/<lang>.nix`, the devShell aggregates them, and `prek.toml` is rendered by the `prek-toml` package + `sync-prek` app.
 
 ```nix
 {
@@ -128,22 +129,40 @@ If `language == "nix-flake"`, write all files in this section. If `language == "
       ];
       forAllSystems =
         f: nixpkgs.lib.genAttrs systems (system: f (import nixpkgs { inherit system; }));
+      codeQualityTools =
+        pkgs:
+        let
+          dir = ./packages/code-quality-tools;
+          files = nixpkgs.lib.filesystem.listFilesRecursive dir;
+          nixFiles = builtins.filter (f: nixpkgs.lib.hasSuffix ".nix" f) files;
+        in
+        builtins.concatMap (f: (import f { inherit pkgs; }).packages) nixFiles;
     in
     {
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
-          packages = [
-            pkgs.prek
-            pkgs.nixfmt
-            pkgs.statix
-            pkgs.deadnix
-            pkgs.shellcheck
-          ];
+          packages = [ pkgs.prek ] ++ codeQualityTools pkgs;
           shellHook = ''
-            if [ -f prek.toml ] && [ ! -f .git/hooks/pre-commit ]; then
-              prek install
+            if [ -d .git ] && [ ! -f .git/hooks/pre-commit ]; then
+              prek install >/dev/null 2>&1 || true
             fi
           '';
+        };
+      });
+      packages = forAllSystems (pkgs: {
+        prek-toml = import ./nix/prek-toml.nix { inherit pkgs; };
+      });
+      apps = forAllSystems (pkgs: {
+        sync-prek = {
+          type = "app";
+          program = toString (
+            pkgs.writeShellScript "sync-prek" ''
+              set -euo pipefail
+              repo_root="$(git rev-parse --show-toplevel)"
+              install -m 644 ${import ./nix/prek-toml.nix { inherit pkgs; }} "$repo_root/prek.toml"
+              echo "Wrote $repo_root/prek.toml"
+            ''
+          );
         };
       });
     };
@@ -151,6 +170,101 @@ If `language == "nix-flake"`, write all files in this section. If `language == "
 ```
 
 Substitute `<description>` with the user's description (use `"TBD"` if empty).
+
+### `packages/code-quality-tools/nix.nix`
+
+Initial per-language tool list. Each file under `packages/code-quality-tools/` returns `{ packages, hooks }`; the flake aggregates `packages` into the devShell, and `nix/prek-toml.nix` aggregates `hooks` into the generated `prek.toml`. Add more `<lang>.nix` files here as the repo gains languages.
+
+```nix
+{ pkgs }:
+{
+  packages = [
+    pkgs.deadnix
+    pkgs.nixfmt
+    pkgs.statix
+  ];
+  hooks = [
+    {
+      id = "nixfmt";
+      entry = "nixfmt";
+      files = "\\.nix$";
+    }
+    {
+      id = "statix";
+      entry = "statix fix";
+      pass_filenames = false;
+    }
+    {
+      id = "deadnix";
+      entry = "deadnix --edit";
+      files = "\\.nix$";
+    }
+  ];
+}
+```
+
+### `nix/prek-toml.nix`
+
+The `prek.toml` generator. Renders the 12 builtin hooks plus every hook aggregated from `packages/code-quality-tools/*.nix`, plus a `prek-toml-up-to-date` drift hook that blocks commits when the checked-in `prek.toml` disagrees with what this generator would produce.
+
+```nix
+{ pkgs }:
+let
+  inherit (pkgs) lib;
+
+  toolsDir = ../packages/code-quality-tools;
+  toolFiles = builtins.filter (f: lib.hasSuffix ".nix" f) (
+    lib.filesystem.listFilesRecursive toolsDir
+  );
+  aggregatedHooks = builtins.concatMap (f: (import f { inherit pkgs; }).hooks) toolFiles;
+
+  builtinHookIds = [
+    "no-commit-to-branch"
+    "trailing-whitespace"
+    "end-of-file-fixer"
+    "check-merge-conflict"
+    "check-toml"
+    "check-json"
+    "check-yaml"
+    "check-xml"
+    "check-added-large-files"
+    "check-case-conflict"
+    "mixed-line-ending"
+    "detect-private-key"
+  ];
+
+  withDefaults =
+    h:
+    {
+      name = h.id;
+      language = "system";
+    }
+    // h;
+
+  driftCheckHook = {
+    id = "prek-toml-up-to-date";
+    entry = "sh -c 'nix run .#sync-prek && git diff --exit-code prek.toml'";
+    pass_filenames = false;
+    files = "^(prek\\.toml|packages/code-quality-tools/.*\\.nix|flake\\.nix|nix/prek-toml\\.nix)$";
+  };
+
+  config = {
+    repos = [
+      {
+        repo = "builtin";
+        hooks = map (id: { inherit id; }) builtinHookIds;
+      }
+      {
+        repo = "local";
+        hooks = map withDefaults (aggregatedHooks ++ [ driftCheckHook ]);
+      }
+    ];
+  };
+
+  tomlFormat = pkgs.formats.toml { };
+in
+tomlFormat.generate "prek.toml" config
+```
 
 ### `.envrc`
 
@@ -170,24 +284,42 @@ Only write this file if `use_direnv == "yes"`.
 
 ### `.gitignore`
 
-Always include `.direnv/` even when `use_direnv == "no"`, so other contributors who do use direnv don't accidentally commit it.
+Always include `.direnv/` even when `use_direnv == "no"`, so other contributors who do use direnv don't accidentally commit it. `.claude/scheduled_tasks.lock` is a Claude Code internal state file that can otherwise get accidentally staged by `git add -A`.
 
 ```
 .direnv/
 .envrc.local
 result
 result-*
+
+# Claude Code internal state
+.claude/scheduled_tasks.lock
 ```
 
 ### `prek.toml`
 
-Copy verbatim from the home-manager checkout (kept aligned with `~/.claude/CLAUDE.md`):
+**Skip this section for `language == "nix-flake"`** — `prek.toml` is generated by `nix run .#sync-prek` in Phase 6.
 
-```
-cp /Users/otto/Documents/home-manager/prek.toml /Users/otto/Documents/<name>/prek.toml
-```
+For `language == "none"`, write the file by hand with just the 12 builtin hooks. No Nix means no devShell-managed tools, and no generator means no drift hook:
 
-Do not embed the contents in the skill — copying ensures the new repo always picks up the latest aligned version.
+```toml
+[[repos]]
+repo = "builtin"
+hooks = [
+  {id = "no-commit-to-branch"},
+  {id = "trailing-whitespace"},
+  {id = "end-of-file-fixer"},
+  {id = "check-merge-conflict"},
+  {id = "check-toml"},
+  {id = "check-json"},
+  {id = "check-yaml"},
+  {id = "check-xml"},
+  {id = "check-added-large-files"},
+  {id = "check-case-conflict"},
+  {id = "mixed-line-ending"},
+  {id = "detect-private-key"},
+]
+```
 
 ### `.helix/languages.toml`
 
@@ -200,7 +332,7 @@ formatter = { command = "nixfmt" }
 
 ### `.github/workflows/ci.yml`
 
-The `prek.toml` copied from home-manager has `language = "system"` hooks (`nixfmt`, `statix`, `deadnix`, `shellcheck`) that need those binaries on `PATH`. So the CI template differs by language: nix-flake repos run prek inside `nix develop` so the devShell provides the tools, with `magic-nix-cache-action` caching the closure across runs.
+The generated `prek.toml` has `language = "system"` hooks (`nixfmt`, `statix`, `deadnix`, etc.) that need those binaries on `PATH`. So the CI template differs by language: nix-flake repos run prek inside `nix develop` so the devShell provides the tools, with `magic-nix-cache-action` caching the closure across runs.
 
 If `language == "nix-flake"`:
 
@@ -215,9 +347,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: DeterminateSystems/nix-installer-action@v21
+
       - uses: DeterminateSystems/magic-nix-cache-action@v13
-      - run: nix develop -c prek run --all-files
+
+      - name: Run prek hooks
+        run: nix develop --command prek run --all-files --show-diff-on-failure
+
+      - name: Flake check (all systems)
+        run: nix flake check --all-systems --no-build
 
   ci:
     needs: [prek]
@@ -230,6 +369,8 @@ jobs:
             exit 1
           fi
 ```
+
+The `nix flake check --all-systems --no-build` step evaluates every flake output (devShells, `packages.<system>.prek-toml`, `apps.<system>.sync-prek`) across all three declared systems without realising derivations. It's cheap and catches eval errors in outputs that the `prek` step never exercises. Combined with the in-repo `prek-toml-up-to-date` drift hook (which runs as part of `prek run --all-files`), the two together enforce both correctness and freshness.
 
 If `language == "none"`:
 
@@ -279,8 +420,10 @@ Why `nix develop` rather than `nix profile install`:
 ## Repo structure
 
 \`\`\`
-flake.nix # Nix devShell
-prek.toml # Pre-commit hooks
+flake.nix # Nix devShell + prek.toml generator outputs
+nix/prek-toml.nix # prek.toml generator (aggregates hooks from packages/code-quality-tools/)
+packages/code-quality-tools/ # Per-language tool + hook definitions
+prek.toml # Pre-commit hooks (generated; run `nix run .#sync-prek` to regenerate)
 .helix/ # Helix editor config
 .github/workflows/ # CI
 \`\`\`
@@ -322,13 +465,14 @@ Replace `<DEV_SECTION>` with one of:
 
 - `language == "none"`: omit the dev shell paragraph entirely; just keep the `prek install` line.
 
-## Phase 6: Activate hooks and run prek
+## Phase 6: Generate prek.toml, activate hooks, and run prek
 
 In `~/Documents/<name>`:
 
-1. `prek install` — activates the hooks for this clone.
-2. `direnv allow` — only if `use_direnv == "yes"`.
-3. `prek run -a` — verifies the scaffolded files pass all hooks. If any file is auto-fixed, leave it staged for the upcoming commit.
+1. **`language == "nix-flake"` only**: `git add -A` (the flake evaluator only sees files tracked by git, so the scaffolded `nix/prek-toml.nix` and `packages/code-quality-tools/nix.nix` must be staged for `nix run .#sync-prek` to see them), then `nix run .#sync-prek` — generates `prek.toml` from the Nix tool definitions.
+2. `prek install` — activates the hooks for this clone.
+3. `direnv allow` — only if `use_direnv == "yes"`.
+4. `prek run -a` — verifies the scaffolded files pass all hooks. If any file is auto-fixed, leave it staged for the upcoming commit.
 
 If `prek run -a` fails after one round of auto-fixes, stop and report the error. Do not open the scaffolding PR with failing hooks.
 
