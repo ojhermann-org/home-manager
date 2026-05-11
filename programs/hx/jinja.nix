@@ -1,11 +1,6 @@
-{ pkgs, ... }:
+_:
 
 {
-  home.packages = [
-    pkgs.copier
-    pkgs.jinja-lsp
-  ];
-
   programs.helix.languages.language = [
     {
       name = "jinja";

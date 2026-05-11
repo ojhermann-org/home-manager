@@ -1,11 +1,6 @@
-{ pkgs, ... }:
+_:
 
 {
-  home.packages = [
-    pkgs.yamlfmt
-    pkgs.ansible-language-server
-  ];
-
   programs.helix.languages.language = [
     {
       name = "yaml";
