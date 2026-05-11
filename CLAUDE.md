@@ -19,17 +19,17 @@ prek.toml          # Git hook configuration (see below)
 .claude/
   settings.json    # Claude Code hook: runs nix flake update before gh pr create
 programs/          # One .nix file per tool/program; each returns a HM module
-  shell.nix        # Shell setup (zsh on Darwin, bash on Linux), aliases, switch scripts
+  shell.nix        # Shell setup (zsh on Darwin, bash on Linux), aliases, switch/news scripts
+  update.nix       # `update` and `update-claude-code` shell apps
   git.nix
-  hx.nix           # Helix editor (top-level config)
+  hx.nix           # Helix editor config — base settings + all per-language entries
   zellij.nix
   direnv.nix
   prek.nix         # Installs prek (hook runner)
-  ...
-  shell/           # Scripts sourced by shell.nix (bash-init.sh, zsh-init.sh, etc.)
-  hx.nix           # Helix editor config — base settings + all per-language entries
   lsp.nix          # Flat list of language servers (editor-agnostic; many serve multiple langs)
   code-quality.nix # Aggregates packages from packages/code-quality-tools/
+  ...
+  shell/           # Scripts sourced by shell.nix (bash-init.sh, zsh-init.sh, etc.)
   zellij/          # Zellij layout files
 packages/          # Standalone Nix derivations and lists imported by programs/ and flake.nix
   code-quality-tools/  # Per-language lists of formatters/linters; shared between HM + devShell
@@ -152,11 +152,14 @@ every tool listed under `packages/code-quality-tools/`. The shell's
 `shellHook` runs `prek install` if the repo's pre-commit hook isn't already
 in place, so entering the shell on a fresh clone is enough to activate hooks.
 
-## Custom commands installed by shell.nix
+## Custom commands
 
-| Command  | Description                                                |
-| -------- | ---------------------------------------------------------- |
-| `switch` | Apply latest `main` config from GitHub (platform-specific) |
+| Command              | Source       | Description                                                           |
+| -------------------- | ------------ | --------------------------------------------------------------------- |
+| `switch`             | `shell.nix`  | Apply latest `main` config from GitHub (platform-specific)            |
+| `news`               | `shell.nix`  | Show home-manager news for the current `$USER@<system>` configuration |
+| `update`             | `update.nix` | Run `update-claude-code` then `nix flake update`                      |
+| `update-claude-code` | `update.nix` | Refresh the pinned `claude-code` package from npm                     |
 
 ## Git hooks (prek)
 

@@ -18,26 +18,6 @@ let
 
   systemCommands = mkSystemCommands pkgs.stdenv.hostPlatform.system;
 
-  updateClaudeCode = pkgs.writeShellApplication {
-    name = "update-claude-code";
-    runtimeInputs = [
-      pkgs.curl
-      pkgs.jq
-      pkgs.git
-      pkgs.gnused
-    ];
-    text = builtins.readFile ./shell/scripts/update-claude-code.sh;
-  };
-
-  update = pkgs.writeShellApplication {
-    name = "update";
-    runtimeInputs = [ updateClaudeCode ];
-    text = ''
-      update-claude-code
-      nix flake update
-    '';
-  };
-
   commonAliases = {
     ct = "tree -aC --gitignore -I \".terraform|.git\"";
     date = "date +'%Y-%m-%d %H:%M:%S'";
@@ -55,8 +35,6 @@ in
     pkgs.coreutils
     systemCommands.switch
     systemCommands.news
-    updateClaudeCode
-    update
   ];
 
   home.activation.sudoByTouch = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (
