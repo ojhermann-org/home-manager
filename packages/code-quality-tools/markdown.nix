@@ -3,5 +3,11 @@
   packages = [
     pkgs.prettier
   ];
-  hooks = [ ];
+  hooks = [
+    {
+      id = "prettier";
+      entry = "prettier --write";
+      files = "\\.md$";
+    }
+  ];
 }
