@@ -28,8 +28,8 @@ programs/          # One .nix file per tool/program; each returns a HM module
   ...
   shell/           # Scripts sourced by shell.nix (bash-init.sh, zsh-init.sh, etc.)
   hx/              # Helix-specific config per language (programs.helix.languages.*)
-  lsp/             # Language servers per language (editor-agnostic)
-  code-quality/    # Formatters + linters per language (editor-agnostic)
+  lsp.nix          # Flat list of language servers (editor-agnostic; many serve multiple langs)
+  code-quality.nix # Aggregates packages from packages/code-quality-tools/
   zellij/          # Zellij layout files
 packages/          # Standalone Nix derivations and lists imported by programs/ and flake.nix
   code-quality-tools/  # Per-language lists of formatters/linters; shared between HM + devShell
@@ -104,36 +104,47 @@ home.activation.sudoByTouch = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (
 
 ### Language tooling layout
 
-Per-language tooling is split across three parallel directories so that
-installation is decoupled from any specific editor:
+Tool installation is decoupled from any specific editor:
 
-- `programs/lsp/<lang>.nix` — installs language servers (e.g. `nil`, `nixd`).
-- `programs/code-quality/<lang>.nix` — installs formatters and linters.
-  Each file is a thin HM module that consumes the shared list at
-  `packages/code-quality-tools/<lang>.nix`.
-- `programs/hx/<lang>.nix` — Helix-specific wiring only
-  (`programs.helix.languages.*`). Does not install packages.
+- `programs/lsp.nix` — flat list of language servers installed for editor use.
+  Not language-keyed: several servers (e.g. `yaml-language-server`,
+  `ansible-language-server`) serve multiple file types, so a per-language
+  split would misrepresent them. Helix decides which server runs for which
+  language in `programs/hx/<lang>.nix`.
+- `programs/code-quality.nix` — aggregates `packages/code-quality-tools/<lang>.nix`
+  (each returns `{ packages, hooks }`) into `home.packages`.
+- `programs/hx/<lang>.nix` — Helix-specific wiring per language
+  (`programs.helix.languages.*`). The only directory that genuinely stays
+  language-keyed, because per-language Helix config varies (formatter args,
+  language-server selection, etc.).
 
-A new language follows the same template across all three locations. Tools
-referenced by Helix config (e.g. `command = "nixfmt"`) resolve via PATH from
-whichever module installs them.
+Adding a new language: add an LSP entry to `programs/lsp.nix` (if any),
+create `packages/code-quality-tools/<lang>.nix` returning `{ packages, hooks }`,
+and create `programs/hx/<lang>.nix` for Helix wiring. Tools referenced by
+Helix config (e.g. `command = "nixfmt"`) resolve via PATH from whichever
+module installs them.
 
 ### Shared code-quality lists (packages/code-quality-tools/)
 
-Each `<lang>.nix` returns a list of packages, e.g.:
+Each `<lang>.nix` returns `{ packages, hooks }`, e.g.:
 
 ```nix
-{ pkgs }: [ pkgs.nixfmt pkgs.statix pkgs.deadnix ]
+{ pkgs }: {
+  packages = [ pkgs.nixfmt pkgs.statix pkgs.deadnix ];
+  hooks = [
+    { id = "nixfmt"; entry = "nixfmt"; files = "\\.nix$"; }
+    # ...
+  ];
+}
 ```
 
-These lists are the single source of truth, consumed by two places:
+These files are the single source of truth, consumed by three places:
 
-- `programs/code-quality/<lang>.nix` — adds them to `home.packages`.
-- `flake.nix` devShell — adds them to `buildInputs`.
-
-This means `nix develop` on a fresh clone gets the full set of code-quality
-tools (plus `prek`) without needing `home-manager switch` first, which is
-what makes the prek hooks runnable in CI and bootstrap contexts.
+- `programs/code-quality.nix` — concatenates `.packages` into `home.packages`.
+- `flake.nix` devShell — concatenates `.packages` into `buildInputs` (so
+  `nix develop` on a fresh clone gets the full set of code-quality tools
+  plus `prek`, without needing `home-manager switch` first).
+- `nix/prek-toml.nix` — concatenates `.hooks` into the generated `prek.toml`.
 
 ### DevShell (`nix develop`)
 
