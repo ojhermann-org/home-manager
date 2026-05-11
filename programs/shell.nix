@@ -1,47 +1,22 @@
 { pkgs, lib, ... }:
 
 let
-  switchDarwinAarch64 = pkgs.writeShellApplication {
-    name = "switch";
-    text = ''
-      home-manager switch --flake github:ojhermann/home-manager#otto@aarch64-darwin --refresh
-    '';
+  mkSystemCommands = system: {
+    switch = pkgs.writeShellApplication {
+      name = "switch";
+      text = ''
+        home-manager switch --flake github:ojhermann/home-manager#otto@${system} --refresh
+      '';
+    };
+    news = pkgs.writeShellApplication {
+      name = "news";
+      text = ''
+        home-manager news --flake github:ojhermann/home-manager#otto@${system}
+      '';
+    };
   };
 
-  newsDarwinAarch64 = pkgs.writeShellApplication {
-    name = "news";
-    text = ''
-      home-manager news --flake github:ojhermann/home-manager#otto@aarch64-darwin
-    '';
-  };
-
-  switchLinuxX86_64 = pkgs.writeShellApplication {
-    name = "switch";
-    text = ''
-      home-manager switch --flake github:ojhermann/home-manager#otto@x86_64-linux --refresh
-    '';
-  };
-
-  newsLinuxX86_64 = pkgs.writeShellApplication {
-    name = "news";
-    text = ''
-      home-manager news --flake github:ojhermann/home-manager#otto@x86_64-linux
-    '';
-  };
-
-  switchLinuxAarch64 = pkgs.writeShellApplication {
-    name = "switch";
-    text = ''
-      home-manager switch --flake github:ojhermann/home-manager#otto@aarch64-linux --refresh
-    '';
-  };
-
-  newsLinuxAarch64 = pkgs.writeShellApplication {
-    name = "news";
-    text = ''
-      home-manager news --flake github:ojhermann/home-manager#otto@aarch64-linux
-    '';
-  };
+  systemCommands = mkSystemCommands pkgs.stdenv.hostPlatform.system;
 
   updateClaudeCode = pkgs.writeShellApplication {
     name = "update-claude-code";
@@ -78,20 +53,10 @@ in
 
   home.packages = [
     pkgs.coreutils
+    systemCommands.switch
+    systemCommands.news
     updateClaudeCode
     update
-  ]
-  ++ lib.optionals (pkgs.stdenv.hostPlatform.isDarwin && pkgs.stdenv.hostPlatform.isAarch64) [
-    switchDarwinAarch64
-    newsDarwinAarch64
-  ]
-  ++ lib.optionals (pkgs.stdenv.hostPlatform.isLinux && pkgs.stdenv.hostPlatform.isx86_64) [
-    switchLinuxX86_64
-    newsLinuxX86_64
-  ]
-  ++ lib.optionals (pkgs.stdenv.hostPlatform.isLinux && pkgs.stdenv.hostPlatform.isAarch64) [
-    switchLinuxAarch64
-    newsLinuxAarch64
   ];
 
   home.activation.sudoByTouch = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (
