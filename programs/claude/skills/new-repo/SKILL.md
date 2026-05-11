@@ -139,6 +139,11 @@ If `language == "nix-flake"`, write all files in this section. If `language == "
             pkgs.deadnix
             pkgs.shellcheck
           ];
+          shellHook = ''
+            if [ -f prek.toml ] && [ ! -f .git/hooks/pre-commit ]; then
+              prek install
+            fi
+          '';
         };
       });
     };
