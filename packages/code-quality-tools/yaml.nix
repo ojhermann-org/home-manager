@@ -1,4 +1,7 @@
 { pkgs }:
-[
-  pkgs.yamlfmt
-]
+{
+  packages = [
+    pkgs.yamlfmt
+  ];
+  hooks = [ ];
+}

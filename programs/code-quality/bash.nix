@@ -1,4 +1,4 @@
 { pkgs, ... }:
 {
-  home.packages = import ../../packages/code-quality-tools/bash.nix { inherit pkgs; };
+  home.packages = (import ../../packages/code-quality-tools/bash.nix { inherit pkgs; }).packages;
 }

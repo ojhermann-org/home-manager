@@ -38,7 +38,7 @@
           files = nixpkgs.lib.filesystem.listFilesRecursive dir;
           nixFiles = builtins.filter (f: nixpkgs.lib.hasSuffix ".nix" f) files;
         in
-        builtins.concatMap (f: import f { inherit pkgs; }) nixFiles;
+        builtins.concatMap (f: (import f { inherit pkgs; }).packages) nixFiles;
     in
     {
       homeConfigurations = {
@@ -59,6 +59,35 @@
                 prek install >/dev/null 2>&1 || true
               fi
             '';
+          };
+        }
+      );
+      packages = forEachSystem (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          prek-toml = import ./nix/prek-toml.nix { inherit pkgs; };
+        }
+      );
+      apps = forEachSystem (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          prekToml = import ./nix/prek-toml.nix { inherit pkgs; };
+        in
+        {
+          sync-prek = {
+            type = "app";
+            program = toString (
+              pkgs.writeShellScript "sync-prek" ''
+                set -euo pipefail
+                repo_root="$(git rev-parse --show-toplevel)"
+                install -m 644 ${prekToml} "$repo_root/prek.toml"
+                echo "Wrote $repo_root/prek.toml"
+              ''
+            );
           };
         }
       );
