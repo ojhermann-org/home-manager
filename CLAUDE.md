@@ -271,4 +271,9 @@ Defined in `shell/scripts/zsh-init.sh` (zsh) and `shell/scripts/bash-init.sh`
 - **`sudo-by-touch`** (Darwin only) — the post-activation hook edits
   `/etc/pam.d/sudo_local` to enable Touch ID for `sudo`. It requires `sudo`
   access and runs automatically after every `switch`.
-- **Shell history** is capped at 200 entries with `ignoredups` on both shells.
+- **Shell history** is capped at 200 entries on both shells. zsh uses
+  `ignoreAllDups`, `ignoreSpace`, `expireDuplicatesFirst`, `share`, and
+  `extended` (timestamps). bash uses `erasedups` and `ignorespace` —
+  the nearest analogues the HM `programs.bash` module exposes.
+  Note: `history` in zsh shows only the last 15 entries by default; use
+  `history 1` (or `history -i 1` for timestamps) to see the full file.
