@@ -11,5 +11,11 @@
       files = "\\.tf$";
       pass_filenames = false;
     }
+    {
+      id = "tflint";
+      entry = "tflint --recursive";
+      files = "\\.tf$";
+      pass_filenames = false;
+    }
   ];
 }
