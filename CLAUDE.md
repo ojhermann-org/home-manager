@@ -27,7 +27,7 @@ programs/          # One .nix file per tool/program; each returns a HM module
   prek.nix         # Installs prek (hook runner)
   ...
   shell/           # Scripts sourced by shell.nix (bash-init.sh, zsh-init.sh, etc.)
-  hx/              # Helix-specific config per language (programs.helix.languages.*)
+  hx.nix           # Helix editor config — base settings + all per-language entries
   lsp.nix          # Flat list of language servers (editor-agnostic; many serve multiple langs)
   code-quality.nix # Aggregates packages from packages/code-quality-tools/
   zellij/          # Zellij layout files
@@ -110,19 +110,18 @@ Tool installation is decoupled from any specific editor:
   Not language-keyed: several servers (e.g. `yaml-language-server`,
   `ansible-language-server`) serve multiple file types, so a per-language
   split would misrepresent them. Helix decides which server runs for which
-  language in `programs/hx/<lang>.nix`.
+  language in `programs/hx.nix`'s `languages.language` list.
 - `programs/code-quality.nix` — aggregates `packages/code-quality-tools/<lang>.nix`
   (each returns `{ packages, hooks }`) into `home.packages`.
-- `programs/hx/<lang>.nix` — Helix-specific wiring per language
-  (`programs.helix.languages.*`). The only directory that genuinely stays
-  language-keyed, because per-language Helix config varies (formatter args,
-  language-server selection, etc.).
+- `programs/hx.nix` — Helix base config plus the `languages.language` list
+  with one entry per language. Each entry has `name`, optional
+  `auto-format`, `formatter`, and `language-servers` keys.
 
 Adding a new language: add an LSP entry to `programs/lsp.nix` (if any),
 create `packages/code-quality-tools/<lang>.nix` returning `{ packages, hooks }`,
-and create `programs/hx/<lang>.nix` for Helix wiring. Tools referenced by
-Helix config (e.g. `command = "nixfmt"`) resolve via PATH from whichever
-module installs them.
+and append a `language` entry to `programs/hx.nix` for Helix wiring. Tools
+referenced by Helix config (e.g. `command = "nixfmt"`) resolve via PATH
+from whichever module installs them.
 
 ### Shared code-quality lists (packages/code-quality-tools/)
 
