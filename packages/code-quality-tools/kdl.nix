@@ -3,5 +3,11 @@
   packages = [
     pkgs.kdlfmt
   ];
-  hooks = [ ];
+  hooks = [
+    {
+      id = "kdlfmt";
+      entry = "kdlfmt format";
+      files = "\\.kdl$";
+    }
+  ];
 }
