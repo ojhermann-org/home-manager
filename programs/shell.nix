@@ -5,13 +5,13 @@ let
     switch = pkgs.writeShellApplication {
       name = "switch";
       text = ''
-        home-manager switch --flake github:ojhermann/home-manager#otto@${system} --refresh
+        home-manager switch --flake "github:ojhermann/home-manager#$USER@${system}" --refresh
       '';
     };
     news = pkgs.writeShellApplication {
       name = "news";
       text = ''
-        home-manager news --flake github:ojhermann/home-manager#otto@${system}
+        home-manager news --flake "github:ojhermann/home-manager#$USER@${system}"
       '';
     };
   };

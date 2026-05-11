@@ -17,6 +17,10 @@
         "x86_64-linux"
         "aarch64-linux"
       ];
+      # Users supported by this flake. Add a name here to enable
+      # `home-manager switch --flake .#<name>@<system>` for that user.
+      # Future-you forking this repo: drop "otto" and add yourself.
+      users = [ "otto" ];
       forEachSystem =
         f:
         builtins.listToAttrs (
@@ -26,9 +30,10 @@
           }) systems
         );
       mkConfig =
-        system:
+        user: system:
         home-manager.lib.homeManagerConfiguration {
           pkgs = nixpkgs.legacyPackages.${system};
+          extraSpecialArgs = { inherit user; };
           modules = [ ./home.nix ];
         };
       codeQualityTools =
@@ -41,11 +46,15 @@
         builtins.concatMap (f: (import f { inherit pkgs; }).packages) nixFiles;
     in
     {
-      homeConfigurations = {
-        "otto@aarch64-darwin" = mkConfig "aarch64-darwin";
-        "otto@x86_64-linux" = mkConfig "x86_64-linux";
-        "otto@aarch64-linux" = mkConfig "aarch64-linux";
-      };
+      homeConfigurations = builtins.listToAttrs (
+        nixpkgs.lib.concatMap (
+          user:
+          map (system: {
+            name = "${user}@${system}";
+            value = mkConfig user system;
+          }) systems
+        ) users
+      );
       devShells = forEachSystem (
         system:
         let

@@ -201,13 +201,24 @@ All four are installed via the per-language code-quality lists under
 Before any `gh pr create` command, Claude automatically runs `nix flake update`
 from the repo root to ensure the lock file is current before the PR is opened.
 
-## Supported systems
+## Supported users and systems
+
+`flake.nix` declares two lists — `users` and `systems` — and generates
+`homeConfigurations.<user>@<system>` for every combination. With the
+current declared sets (`users = [ "otto" ]`, `systems = [ "aarch64-darwin",
+"x86_64-linux", "aarch64-linux" ]`), the available attributes are:
 
 | Attribute             | System                |
 | --------------------- | --------------------- |
 | `otto@aarch64-darwin` | macOS (Apple Silicon) |
 | `otto@x86_64-linux`   | Linux (x86)           |
 | `otto@aarch64-linux`  | Linux (ARM64)         |
+
+Adding a new user is a one-line change to `users` in `flake.nix`; their
+`home.username` and `home.homeDirectory` are derived from the name. The
+`switch`/`news` commands installed by `shell.nix` use `$USER` at runtime
+to pick the right attribute, so each user gets the right config without
+naming themselves anywhere else.
 
 ## Workflow
 
@@ -218,7 +229,7 @@ Run `switch` locally to verify the config applies cleanly before merging.
 ### Local development / testing
 
 ```bash
-home-manager switch --flake .#otto@aarch64-darwin
+home-manager switch --flake ".#$USER@aarch64-darwin"
 ```
 
 Use the appropriate attribute for the current machine. The `--refresh` flag
