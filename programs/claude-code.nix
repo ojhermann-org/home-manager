@@ -28,7 +28,6 @@ in
           "Bash(gh *)"
           "Bash(git *)"
           "Bash(home-manager *)"
-          "Bash(mise *)"
           "Bash(nix *)"
           "Bash(prek *)"
           "Bash(python *)"

@@ -43,11 +43,6 @@ let
     '';
   };
 
-  newPyDir = pkgs.writeShellApplication {
-    name = "new-py-dir";
-    runtimeInputs = [ pkgs.coreutils ];
-    text = builtins.readFile ./shell/scripts/new-py-dir.sh;
-  };
   updateClaudeCode = pkgs.writeShellApplication {
     name = "update-claude-code";
     runtimeInputs = [
@@ -83,7 +78,6 @@ in
 
   home.packages = [
     pkgs.coreutils
-    newPyDir
     updateClaudeCode
     update
   ]
