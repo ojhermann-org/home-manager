@@ -2,13 +2,11 @@
   config,
   pkgs,
   lib,
+  user,
   ...
 }:
 
 let
-  username = "otto";
-  homeDirectoryApple = "/Users/${username}";
-  homeDirectoryLinux = "/home/${username}";
   importAllNixFiles =
     path:
     let
@@ -23,9 +21,8 @@ in
   imports = importAllNixFiles ./programs;
 
   home = {
-    inherit username;
-    homeDirectory =
-      if pkgs.stdenv.hostPlatform.isDarwin then homeDirectoryApple else homeDirectoryLinux;
+    username = user;
+    homeDirectory = if pkgs.stdenv.hostPlatform.isDarwin then "/Users/${user}" else "/home/${user}";
     # This value determines the Home Manager release that your configuration is
     # compatible with. This helps avoid breakage when a new Home Manager release
     # introduces backwards incompatible changes.
