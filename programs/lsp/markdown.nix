@@ -1,7 +1,7 @@
 { pkgs, ... }:
-
 {
   home.packages = [
-    pkgs.dockerfile-language-server
+    pkgs.markdown-oxide
+    pkgs.marksman
   ];
 }

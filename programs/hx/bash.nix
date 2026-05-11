@@ -1,11 +1,6 @@
-{ pkgs, ... }:
+_:
 
 {
-  home.packages = [
-    pkgs.bash-language-server
-    pkgs.shfmt
-  ];
-
   programs.helix.languages.language = [
     {
       name = "bash";

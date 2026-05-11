@@ -21,17 +21,20 @@ prek.toml          # Git hook configuration (see below)
 programs/          # One .nix file per tool/program; each returns a HM module
   shell.nix        # Shell setup (zsh on Darwin, bash on Linux), aliases, switch scripts
   git.nix
-  hx.nix           # Helix editor
+  hx.nix           # Helix editor (top-level config)
   zellij.nix
   mise.nix
   direnv.nix
-  prek.nix         # Installs prek
+  prek.nix         # Installs prek (hook runner)
   ...
   shell/           # Scripts sourced by shell.nix (bash-init.sh, zsh-init.sh, etc.)
-  hx/              # Helix config files (LSP, formatters, linters per language)
+  hx/              # Helix-specific config per language (programs.helix.languages.*)
+  lsp/             # Language servers per language (editor-agnostic)
+  code-quality/    # Formatters + linters per language (editor-agnostic)
   zellij/          # Zellij layout files
-packages/          # Standalone Nix derivations imported by programs/
+packages/          # Standalone Nix derivations and lists imported by programs/ and flake.nix
   gst.nix          # git status + tree combo script
+  code-quality-tools/  # Per-language lists of formatters/linters; shared between HM + devShell
 ```
 
 ## Key patterns
@@ -103,13 +106,45 @@ home.activation.sudoByTouch = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (
 );
 ```
 
-### Helix language configs (programs/hx/)
+### Language tooling layout
 
-Each file under `programs/hx/` configures a language server/formatter for one
-language. They are plain HM modules (auto-imported) that extend
-`programs.helix.languages.language` and install the relevant tools into
-`home.packages`. Example: `hx/nix.nix` installs `nil`, `nixd`, `nixfmt`,
-`statix`, and `deadnix`, and configures auto-format on save.
+Per-language tooling is split across three parallel directories so that
+installation is decoupled from any specific editor:
+
+- `programs/lsp/<lang>.nix` — installs language servers (e.g. `nil`, `nixd`).
+- `programs/code-quality/<lang>.nix` — installs formatters and linters.
+  Each file is a thin HM module that consumes the shared list at
+  `packages/code-quality-tools/<lang>.nix`.
+- `programs/hx/<lang>.nix` — Helix-specific wiring only
+  (`programs.helix.languages.*`). Does not install packages.
+
+A new language follows the same template across all three locations. Tools
+referenced by Helix config (e.g. `command = "nixfmt"`) resolve via PATH from
+whichever module installs them.
+
+### Shared code-quality lists (packages/code-quality-tools/)
+
+Each `<lang>.nix` returns a list of packages, e.g.:
+
+```nix
+{ pkgs }: [ pkgs.nixfmt pkgs.statix pkgs.deadnix ]
+```
+
+These lists are the single source of truth, consumed by two places:
+
+- `programs/code-quality/<lang>.nix` — adds them to `home.packages`.
+- `flake.nix` devShell — adds them to `buildInputs`.
+
+This means `nix develop` on a fresh clone gets the full set of code-quality
+tools (plus `prek`) without needing `home-manager switch` first, which is
+what makes the prek hooks runnable in CI and bootstrap contexts.
+
+### DevShell (`nix develop`)
+
+`flake.nix` exposes a `default` devShell per system containing `prek` and
+every tool listed under `packages/code-quality-tools/`. The shell's
+`shellHook` runs `prek install` if the repo's pre-commit hook isn't already
+in place, so entering the shell on a fresh clone is enough to activate hooks.
 
 ## Custom commands installed by shell.nix
 
@@ -153,8 +188,10 @@ These run tools that are installed via home-manager packages:
 | `deadnix` | `deadnix --edit` | Auto-removes unused Nix bindings in place |
 | `shellcheck` | `shellcheck` | Shell script correctness |
 
-`statix` and `deadnix` are installed by `programs/hx/nix.nix`.
-`shellcheck` is installed by `programs/shellcheck.nix`.
+All four are installed via the per-language code-quality lists under
+`packages/code-quality-tools/` (`nix.nix` for `nixfmt`/`statix`/`deadnix`,
+`bash.nix` for `shellcheck`). These lists are consumed by both
+`programs/code-quality/<lang>.nix` and the flake's devShell.
 
 ### Claude Code hook (`.claude/settings.json`)
 

@@ -1,11 +1,6 @@
-{ pkgs, ... }:
+_:
 
 {
-  home.packages = [
-    pkgs.taplo
-    pkgs.tombi
-  ];
-
   programs.helix.languages.language = [
     {
       name = "toml";

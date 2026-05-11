@@ -1,12 +1,6 @@
-{ pkgs, ... }:
+_:
 
 {
-  home.packages = [
-    pkgs.markdown-oxide
-    pkgs.marksman
-    pkgs.prettier
-  ];
-
   programs.helix.languages.language = [
     {
       name = "markdown";

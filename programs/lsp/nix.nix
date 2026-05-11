@@ -1,7 +1,7 @@
 { pkgs, ... }:
-
 {
   home.packages = [
-    pkgs.tflint
+    pkgs.nil
+    pkgs.nixd
   ];
 }

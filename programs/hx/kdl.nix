@@ -1,10 +1,6 @@
-{ pkgs, ... }:
+_:
 
 {
-  home.packages = [
-    pkgs.kdlfmt
-  ];
-
   programs.helix.languages.language = [
     {
       name = "kdl";
