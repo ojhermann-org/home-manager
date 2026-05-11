@@ -88,6 +88,14 @@ language = "system"
 name = "deadnix"
 
 [[repos.hooks]]
+entry = "taplo format"
+exclude = "^prek\\.toml$"
+files = "\\.toml$"
+id = "taplo"
+language = "system"
+name = "taplo"
+
+[[repos.hooks]]
 entry = "yamlfmt -formatter retain_line_breaks=true"
 files = "\\.ya?ml$"
 id = "yamlfmt"
