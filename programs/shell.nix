@@ -1,8 +1,6 @@
 { pkgs, lib, ... }:
 
 let
-  gst = import ../packages/gst.nix { inherit pkgs; };
-
   switchDarwinAarch64 = pkgs.writeShellApplication {
     name = "switch";
     text = ''
@@ -96,7 +94,6 @@ in
 
   home.packages = [
     pkgs.coreutils
-    gst
     newPyDir
     newZsh
     newBash

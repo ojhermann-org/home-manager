@@ -33,7 +33,6 @@ programs/          # One .nix file per tool/program; each returns a HM module
   code-quality/    # Formatters + linters per language (editor-agnostic)
   zellij/          # Zellij layout files
 packages/          # Standalone Nix derivations and lists imported by programs/ and flake.nix
-  gst.nix          # git status + tree combo script
   code-quality-tools/  # Per-language lists of formatters/linters; shared between HM + devShell
 ```
 
@@ -77,13 +76,11 @@ Add the derivation to `home.packages` to install it.
 
 ### Standalone packages (packages/)
 
-Derivations in `packages/` take explicit arguments (e.g., `{ pkgs }` or
-`{ pkgs, gst }`) and are imported manually inside `programs/` files:
+Files in `packages/` take explicit arguments (typically `{ pkgs }`) and
+are imported manually from `programs/` files or `flake.nix`:
 
 ```nix
-let
-  gst = import ../packages/gst.nix { inherit pkgs; };
-in { ... }
+home.packages = import ../../packages/code-quality-tools/nix.nix { inherit pkgs; };
 ```
 
 ### Linking config files/dirs with `xdg.configFile`
@@ -151,7 +148,6 @@ in place, so entering the shell on a fresh clone is enough to activate hooks.
 | Command      | Description |
 |--------------|-------------|
 | `switch`     | Apply latest `main` config from GitHub (platform-specific) |
-| `gst`        | `git status -sb` + `tree` (or just `tree` outside a git repo) |
 | `new-py-dir` | Create a directory tree and add `__init__.py` to each new dir |
 | `new-zsh`    | Scaffold a new zsh script file |
 | `new-bash`   | Scaffold a new bash script file |
