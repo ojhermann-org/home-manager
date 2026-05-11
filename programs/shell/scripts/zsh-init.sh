@@ -1,13 +1,13 @@
 # shellcheck shell=bash
 function git-details {
-	branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-	if [[ -z "$branch" ]]; then
-		echo ""
-	elif git status --porcelain 2>/dev/null | grep -q .; then
-		echo "%F{white}| %F{red}⎇ ${branch} %f"
-	else
-		echo "%F{white}| %F{green}⎇ ${branch} %f"
-	fi
+  branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  if [[ -z "$branch" ]]; then
+    echo ""
+  elif git status --porcelain 2>/dev/null | grep -q .; then
+    echo "%F{white}| %F{red}⎇ ${branch} %f"
+  else
+    echo "%F{white}| %F{green}⎇ ${branch} %f"
+  fi
 }
 # shellcheck disable=SC2169
 setopt PROMPT_SUBST
