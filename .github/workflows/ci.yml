@@ -25,6 +25,9 @@ jobs:
 
       - uses: DeterminateSystems/magic-nix-cache-action@v13
 
+      - name: Flake check (all systems)
+        run: nix flake check --all-systems --no-build
+
       - name: Build x86_64-linux configuration
         run: nix build .#homeConfigurations."otto@x86_64-linux".activationPackage --no-link
 
