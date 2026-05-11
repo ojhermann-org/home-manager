@@ -13,10 +13,8 @@ jobs:
 
       - uses: DeterminateSystems/magic-nix-cache-action@v13
 
-      - name: Install lint tools
-        run: nix profile install nixpkgs#nixfmt nixpkgs#statix nixpkgs#deadnix nixpkgs#shellcheck
-
-      - uses: j178/prek-action@v2.0.0
+      - name: Run prek hooks
+        run: nix develop --command prek run --all-files --show-diff-on-failure
 
   build:
     runs-on: ubuntu-latest
