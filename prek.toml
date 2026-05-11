@@ -53,6 +53,13 @@ language = "system"
 name = "shfmt"
 
 [[repos.hooks]]
+entry = "kdlfmt format"
+files = "\\.kdl$"
+id = "kdlfmt"
+language = "system"
+name = "kdlfmt"
+
+[[repos.hooks]]
 entry = "prettier --write"
 files = "\\.md$"
 id = "prettier"
