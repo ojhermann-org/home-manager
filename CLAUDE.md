@@ -149,8 +149,6 @@ in place, so entering the shell on a fresh clone is enough to activate hooks.
 |--------------|-------------|
 | `switch`     | Apply latest `main` config from GitHub (platform-specific) |
 | `new-py-dir` | Create a directory tree and add `__init__.py` to each new dir |
-| `new-zsh`    | Scaffold a new zsh script file |
-| `new-bash`   | Scaffold a new bash script file |
 
 ## Git hooks (prek)
 
@@ -273,7 +271,4 @@ Defined in `shell/scripts/zsh-init.sh` (zsh) and `shell/scripts/bash-init.sh`
 - **`sudo-by-touch`** (Darwin only) — the post-activation hook edits
   `/etc/pam.d/sudo_local` to enable Touch ID for `sudo`. It requires `sudo`
   access and runs automatically after every `switch`.
-- **`new-zsh` / `new-bash`** create a file at the given path (including any
-  missing parent directories) pre-populated with a shebang and
-  `# shellcheck shell=bash` directive.
 - **Shell history** is capped at 200 entries with `ignoredups` on both shells.

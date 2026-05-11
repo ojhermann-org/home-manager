@@ -48,17 +48,6 @@ let
     runtimeInputs = [ pkgs.coreutils ];
     text = builtins.readFile ./shell/scripts/new-py-dir.sh;
   };
-  newZsh = pkgs.writeShellApplication {
-    name = "new-zsh";
-    runtimeInputs = [ pkgs.coreutils ];
-    text = builtins.readFile ./shell/scripts/new-zsh.sh;
-  };
-  newBash = pkgs.writeShellApplication {
-    name = "new-bash";
-    runtimeInputs = [ pkgs.coreutils ];
-    text = builtins.readFile ./shell/scripts/new-bash.sh;
-  };
-
   updateClaudeCode = pkgs.writeShellApplication {
     name = "update-claude-code";
     runtimeInputs = [
@@ -95,8 +84,6 @@ in
   home.packages = [
     pkgs.coreutils
     newPyDir
-    newZsh
-    newBash
     updateClaudeCode
     update
   ]
