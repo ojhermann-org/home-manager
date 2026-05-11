@@ -3,5 +3,12 @@
   packages = [
     pkgs.taplo
   ];
-  hooks = [ ];
+  hooks = [
+    {
+      id = "taplo";
+      entry = "taplo format";
+      files = "\\.toml$";
+      exclude = "^prek\\.toml$";
+    }
+  ];
 }
