@@ -124,7 +124,11 @@ in
     enable = true;
     history = {
       size = 200;
-      ignoreDups = true;
+      ignoreAllDups = true;
+      ignoreSpace = true;
+      expireDuplicatesFirst = true;
+      share = true;
+      extended = true;
     };
     shellAliases = commonAliases;
     initContent =
@@ -140,7 +144,10 @@ in
   programs.bash = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     enable = true;
     historySize = 200;
-    historyControl = [ "ignoredups" ];
+    historyControl = [
+      "erasedups"
+      "ignorespace"
+    ];
     shellAliases = commonAliases;
     initExtra = (builtins.readFile ./shell/scripts/bash-init.sh) + ''
       ulimit -Ss 61440
