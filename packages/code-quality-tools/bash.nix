@@ -10,5 +10,10 @@
       entry = "shellcheck";
       files = "\\.sh$";
     }
+    {
+      id = "shfmt";
+      entry = "shfmt -w -i 2";
+      files = "\\.sh$";
+    }
   ];
 }

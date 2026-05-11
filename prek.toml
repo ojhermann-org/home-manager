@@ -46,6 +46,13 @@ language = "system"
 name = "shellcheck"
 
 [[repos.hooks]]
+entry = "shfmt -w -i 2"
+files = "\\.sh$"
+id = "shfmt"
+language = "system"
+name = "shfmt"
+
+[[repos.hooks]]
 entry = "nixfmt"
 files = "\\.nix$"
 id = "nixfmt"
