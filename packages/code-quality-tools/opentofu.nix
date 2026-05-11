@@ -1,5 +1,8 @@
 { pkgs }:
-[
-  pkgs.terraform-docs
-  pkgs.tflint
-]
+{
+  packages = [
+    pkgs.terraform-docs
+    pkgs.tflint
+  ];
+  hooks = [ ];
+}

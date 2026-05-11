@@ -1,25 +1,75 @@
 [[repos]]
 repo = "builtin"
-hooks = [
-  {id = "no-commit-to-branch"},
-  {id = "trailing-whitespace"},
-  {id = "end-of-file-fixer"},
-  {id = "check-merge-conflict"},
-  {id = "check-toml"},
-  {id = "check-json"},
-  {id = "check-yaml"},
-  {id = "check-xml"},
-  {id = "check-added-large-files"},
-  {id = "check-case-conflict"},
-  {id = "mixed-line-ending"},
-  {id = "detect-private-key"},
-]
+[[repos.hooks]]
+id = "no-commit-to-branch"
+
+[[repos.hooks]]
+id = "trailing-whitespace"
+
+[[repos.hooks]]
+id = "end-of-file-fixer"
+
+[[repos.hooks]]
+id = "check-merge-conflict"
+
+[[repos.hooks]]
+id = "check-toml"
+
+[[repos.hooks]]
+id = "check-json"
+
+[[repos.hooks]]
+id = "check-yaml"
+
+[[repos.hooks]]
+id = "check-xml"
+
+[[repos.hooks]]
+id = "check-added-large-files"
+
+[[repos.hooks]]
+id = "check-case-conflict"
+
+[[repos.hooks]]
+id = "mixed-line-ending"
+
+[[repos.hooks]]
+id = "detect-private-key"
 
 [[repos]]
 repo = "local"
-hooks = [
-  {id = "nixfmt",    name = "nixfmt",    entry = "nixfmt",        language = "system", files = "\\.nix$"},
-  {id = "statix",    name = "statix",    entry = "statix fix",    language = "system", pass_filenames = false},
-  {id = "deadnix",   name = "deadnix",   entry = "deadnix --edit", language = "system", files = "\\.nix$"},
-  {id = "shellcheck", name = "shellcheck", entry = "shellcheck",   language = "system", files = "\\.sh$"},
-]
+[[repos.hooks]]
+entry = "shellcheck"
+files = "\\.sh$"
+id = "shellcheck"
+language = "system"
+name = "shellcheck"
+
+[[repos.hooks]]
+entry = "nixfmt"
+files = "\\.nix$"
+id = "nixfmt"
+language = "system"
+name = "nixfmt"
+
+[[repos.hooks]]
+entry = "statix fix"
+id = "statix"
+language = "system"
+name = "statix"
+pass_filenames = false
+
+[[repos.hooks]]
+entry = "deadnix --edit"
+files = "\\.nix$"
+id = "deadnix"
+language = "system"
+name = "deadnix"
+
+[[repos.hooks]]
+entry = "sh -c 'nix run .#sync-prek && git diff --exit-code prek.toml'"
+files = "^(prek\\.toml|packages/code-quality-tools/.*\\.nix|flake\\.nix|nix/prek-toml\\.nix)$"
+id = "prek-toml-up-to-date"
+language = "system"
+name = "prek-toml-up-to-date"
+pass_filenames = false

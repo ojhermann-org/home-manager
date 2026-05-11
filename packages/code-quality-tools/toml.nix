@@ -1,4 +1,7 @@
 { pkgs }:
-[
-  pkgs.taplo
-]
+{
+  packages = [
+    pkgs.taplo
+  ];
+  hooks = [ ];
+}
