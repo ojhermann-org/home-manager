@@ -96,6 +96,14 @@ name = "terraform-docs"
 pass_filenames = false
 
 [[repos.hooks]]
+entry = "tflint --recursive"
+files = "\\.tf$"
+id = "tflint"
+language = "system"
+name = "tflint"
+pass_filenames = false
+
+[[repos.hooks]]
 entry = "taplo format"
 exclude = "^prek\\.toml$"
 files = "\\.toml$"
