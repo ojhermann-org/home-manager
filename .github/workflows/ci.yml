@@ -4,6 +4,39 @@ on:
   pull_request:
 
 jobs:
+  # Compute which path categories changed in this PR so we can skip
+  # expensive downstream jobs (e.g. `build` on a README-only change).
+  #
+  # We do this inline with `git diff` rather than dorny/paths-filter
+  # because the filter is small and self-contained, and we'd rather
+  # avoid a third-party Action dependency. If this grows — more
+  # categories, fork-PR / merge-commit edge cases, glob patterns —
+  # switch to dorny/paths-filter pinned to a commit SHA.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      nix: ${{ steps.filter.outputs.nix }}
+      flake: ${{ steps.filter.outputs.flake }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute changed path categories
+        id: filter
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          FILES=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          echo "$FILES" | grep -qE '\.nix$|^flake\.lock$' && nix=true || nix=false
+          echo "$FILES" | grep -qE '^flake\.(nix|lock)$' && flake=true || flake=false
+          {
+            echo "nix=$nix"
+            echo "flake=$flake"
+          } >> "$GITHUB_OUTPUT"
+
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -17,6 +50,8 @@ jobs:
         run: nix develop --command prek run --all-files --show-diff-on-failure
 
   build:
+    needs: changes
+    if: needs.changes.outputs.nix == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,6 +67,8 @@ jobs:
         run: nix build .#homeConfigurations."otto@x86_64-linux".activationPackage --no-link
 
   flake-checker:
+    needs: changes
+    if: needs.changes.outputs.flake == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

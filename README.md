@@ -22,10 +22,12 @@ Anywhere this is used, entering `switch` into the terminal will link to the `mai
 
 ## CI
 
-The `ci` job is required to pass before merging to `main`, enforced by the org-level ruleset in [github-settings](https://github.com/ojhermann-org/github-settings). `lint`, `build`, and `flake-checker` run in parallel; `ci` gates on all three.
+The `ci` job is required to pass before merging to `main`, enforced by the org-level ruleset in [github-settings](https://github.com/ojhermann-org/github-settings). A preceding `changes` job diffs the PR to decide which downstream jobs need to run: `build` skips on non-Nix PRs, `flake-checker` skips unless `flake.nix` or `flake.lock` changed, and `lint` always runs (its hooks self-filter per file type). `ci` treats skipped jobs as passing.
 
 ```mermaid
 graph LR
+  changes -.-> build
+  changes -.-> flake-checker
   lint --> ci
   build --> ci
   flake-checker --> ci
