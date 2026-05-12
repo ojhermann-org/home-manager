@@ -31,8 +31,18 @@ jobs:
       - name: Build x86_64-linux configuration
         run: nix build .#homeConfigurations."otto@x86_64-linux".activationPackage --no-link
 
+  flake-checker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/flake-checker-action@v12
+        with:
+          fail-mode: true
+          send-statistics: false
+
   ci:
-    needs: [lint, build]
+    needs: [lint, build, flake-checker]
     runs-on: ubuntu-latest
     if: always()
     steps:

@@ -2,6 +2,7 @@
 {
   packages = [
     pkgs.deadnix
+    pkgs.flake-checker
     pkgs.nixfmt
     pkgs.statix
   ];
@@ -20,6 +21,12 @@
       id = "deadnix";
       entry = "deadnix --edit";
       files = "\\.nix$";
+    }
+    {
+      id = "flake-checker";
+      entry = "flake-checker --fail-mode --no-telemetry";
+      files = "^flake\\.(nix|lock)$";
+      pass_filenames = false;
     }
   ];
 }
