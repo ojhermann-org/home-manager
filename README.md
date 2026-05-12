@@ -22,10 +22,11 @@ Anywhere this is used, entering `switch` into the terminal will link to the `mai
 
 ## CI
 
-The `ci` job is required to pass before merging to `main`, enforced by the org-level ruleset in [github-settings](https://github.com/ojhermann-org/github-settings). `lint` and `build` run in parallel; `ci` gates on both.
+The `ci` job is required to pass before merging to `main`, enforced by the org-level ruleset in [github-settings](https://github.com/ojhermann-org/github-settings). `lint`, `build`, and `flake-checker` run in parallel; `ci` gates on all three.
 
 ```mermaid
 graph LR
   lint --> ci
   build --> ci
+  flake-checker --> ci
 ```
