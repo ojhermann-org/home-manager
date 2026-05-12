@@ -41,10 +41,6 @@ _:
           };
         }
         {
-          name = "jinja";
-          language-servers = [ "jinja-lsp" ];
-        }
-        {
           name = "kdl";
           auto-format = true;
           formatter = {
@@ -97,9 +93,6 @@ _:
           };
         }
       ];
-      language-server.jinja-lsp = {
-        command = "jinja-lsp";
-      };
     };
   };
 }
