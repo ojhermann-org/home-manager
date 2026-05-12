@@ -104,6 +104,13 @@ name = "tflint"
 pass_filenames = false
 
 [[repos.hooks]]
+entry = "gitleaks git --pre-commit --staged --redact --verbose"
+id = "gitleaks"
+language = "system"
+name = "gitleaks"
+pass_filenames = false
+
+[[repos.hooks]]
 entry = "taplo format"
 exclude = "^prek\\.toml$"
 files = "\\.toml$"
