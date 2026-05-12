@@ -88,6 +88,14 @@ language = "system"
 name = "deadnix"
 
 [[repos.hooks]]
+entry = "flake-checker --fail-mode --no-telemetry"
+files = "^flake\\.(nix|lock)$"
+id = "flake-checker"
+language = "system"
+name = "flake-checker"
+pass_filenames = false
+
+[[repos.hooks]]
 entry = "terraform-docs markdown table . --recursive --output-file README.md --output-mode inject --output-check"
 files = "\\.tf$"
 id = "terraform-docs"
