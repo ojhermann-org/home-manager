@@ -21,6 +21,16 @@
       # `home-manager switch --flake .#<name>@<system>` for that user.
       # Future-you forking this repo: drop "otto" and add yourself.
       users = [ "otto" ];
+      # Import nixpkgs with allowUnfree so unfree packages (e.g. vscode) are
+      # usable from any of the flake outputs. legacyPackages.${system} would
+      # ignore home.nix's nixpkgs.config because pkgs is built before HM's
+      # module system sees it.
+      pkgsFor =
+        system:
+        import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
       forEachSystem =
         f:
         builtins.listToAttrs (
@@ -32,7 +42,7 @@
       mkConfig =
         user: system:
         home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = pkgsFor system;
           extraSpecialArgs = { inherit user; };
           modules = [ ./home.nix ];
         };
@@ -58,7 +68,7 @@
       devShells = forEachSystem (
         system:
         let
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = pkgsFor system;
         in
         {
           default = pkgs.mkShell {
@@ -74,7 +84,7 @@
       packages = forEachSystem (
         system:
         let
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = pkgsFor system;
         in
         {
           prek-toml = import ./nix/prek-toml.nix { inherit pkgs; };
@@ -83,7 +93,7 @@
       apps = forEachSystem (
         system:
         let
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = pkgsFor system;
           prekToml = import ./nix/prek-toml.nix { inherit pkgs; };
         in
         {
