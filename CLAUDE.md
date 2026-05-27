@@ -203,12 +203,10 @@ All four are installed via the per-language code-quality lists under
 Before any `gh pr create` command, Claude automatically runs `nix flake update`
 from the repo root to ensure the lock file is current before the PR is opened.
 
-## Supported users and systems
+## Supported systems
 
-`flake.nix` declares two lists — `users` and `systems` — and generates
-`homeConfigurations.<user>@<system>` for every combination. With the
-current declared sets (`users = [ "otto" ]`, `systems = [ "aarch64-darwin",
-"x86_64-linux", "aarch64-linux" ]`), the available attributes are:
+`flake.nix` hardcodes `otto` as the sole user and iterates over a `systems`
+list to produce one `homeConfigurations.otto@<system>` attribute per system:
 
 | Attribute             | System                |
 | --------------------- | --------------------- |
@@ -216,11 +214,9 @@ current declared sets (`users = [ "otto" ]`, `systems = [ "aarch64-darwin",
 | `otto@x86_64-linux`   | Linux (x86)           |
 | `otto@aarch64-linux`  | Linux (ARM64)         |
 
-Adding a new user is a one-line change to `users` in `flake.nix`; their
-`home.username` and `home.homeDirectory` are derived from the name. The
-`switch`/`news` commands installed by `shell.nix` use `$USER` at runtime
-to pick the right attribute, so each user gets the right config without
-naming themselves anywhere else.
+The `switch`/`news` commands installed by `shell.nix` use `$USER` at runtime
+to construct the flake attribute, which resolves to `otto` on every supported
+machine.
 
 ## Workflow
 

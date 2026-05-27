@@ -12,15 +12,12 @@
   outputs =
     { nixpkgs, home-manager, ... }:
     let
+      username = "otto";
       systems = [
         "aarch64-darwin"
         "x86_64-linux"
         "aarch64-linux"
       ];
-      # Users supported by this flake. Add a name here to enable
-      # `home-manager switch --flake .#<name>@<system>` for that user.
-      # Future-you forking this repo: drop "otto" and add yourself.
-      users = [ "otto" ];
       # Import nixpkgs with allowUnfree so unfree packages (e.g. vscode) are
       # usable from any of the flake outputs. legacyPackages.${system} would
       # ignore home.nix's nixpkgs.config because pkgs is built before HM's
@@ -40,10 +37,10 @@
           }) systems
         );
       mkConfig =
-        user: system:
+        system:
         home-manager.lib.homeManagerConfiguration {
           pkgs = pkgsFor system;
-          extraSpecialArgs = { inherit user; };
+          extraSpecialArgs = { inherit username; };
           modules = [ ./home.nix ];
         };
       codeQualityTools =
@@ -57,13 +54,10 @@
     in
     {
       homeConfigurations = builtins.listToAttrs (
-        nixpkgs.lib.concatMap (
-          user:
-          map (system: {
-            name = "${user}@${system}";
-            value = mkConfig user system;
-          }) systems
-        ) users
+        map (system: {
+          name = "${username}@${system}";
+          value = mkConfig system;
+        }) systems
       );
       devShells = forEachSystem (
         system:

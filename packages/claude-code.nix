@@ -8,20 +8,20 @@
   socat,
 }:
 let
-  version = "2.1.139";
+  version = "2.1.152";
 
   sources = {
     "aarch64-darwin" = {
       pkg = "darwin-arm64";
-      hash = "sha256-Jxwwand+kP8mk5zb50LkBPSg2oZXNboVZC9jl4G4Hwg=";
+      hash = "sha256-7dGTYu7vA7aE8eDbAhKcmpFmF1l/7oETzj21GlRo3nI=";
     };
     "x86_64-linux" = {
       pkg = "linux-x64";
-      hash = "sha256-oIWX8RqxHnNSpaJAEIJjvETDy4anJ/xBk6LmSGclWgM=";
+      hash = "sha256-nObwk/A31avN8TqjuRKuWQ3Hvyj5KZeyRGFYfmlArqY=";
     };
     "aarch64-linux" = {
       pkg = "linux-arm64";
-      hash = "sha256-POk0H1KZV6IszWx5Q6SlNOMNRbeBaXwWQ9uQk+RJtSo=";
+      hash = "sha256-lt5/kb0mEZUqb4YYX0x8okcC3+S6B/TLDqe7P7sdOC4=";
     };
   };
 
