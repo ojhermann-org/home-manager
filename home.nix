@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  username,
   ...
 }:
 
@@ -20,7 +21,7 @@ in
   imports = importAllNixFiles ./programs;
 
   home = {
-    username = "otto";
+    inherit username;
     homeDirectory =
       if pkgs.stdenv.hostPlatform.isDarwin then
         "/Users/${config.home.username}"

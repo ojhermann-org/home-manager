@@ -12,6 +12,7 @@
   outputs =
     { nixpkgs, home-manager, ... }:
     let
+      username = "otto";
       systems = [
         "aarch64-darwin"
         "x86_64-linux"
@@ -39,6 +40,7 @@
         system:
         home-manager.lib.homeManagerConfiguration {
           pkgs = pkgsFor system;
+          extraSpecialArgs = { inherit username; };
           modules = [ ./home.nix ];
         };
       codeQualityTools =
@@ -53,7 +55,7 @@
     {
       homeConfigurations = builtins.listToAttrs (
         map (system: {
-          name = "otto@${system}";
+          name = "${username}@${system}";
           value = mkConfig system;
         }) systems
       );
