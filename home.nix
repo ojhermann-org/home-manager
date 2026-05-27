@@ -21,7 +21,11 @@ in
 
   home = {
     username = "otto";
-    homeDirectory = if pkgs.stdenv.hostPlatform.isDarwin then "/Users/otto" else "/home/otto";
+    homeDirectory =
+      if pkgs.stdenv.hostPlatform.isDarwin then
+        "/Users/${config.home.username}"
+      else
+        "/home/${config.home.username}";
     stateVersion = "25.11";
     packages = [ ];
     file = { };
