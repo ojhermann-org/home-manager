@@ -52,6 +52,9 @@ in
       extended = true;
     };
     shellAliases = commonAliases;
+    profileExtra = lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
+      eval "$(/opt/homebrew/bin/brew shellenv)"
+    '';
     initContent =
       (builtins.readFile ./shell/scripts/zsh-init.sh)
       + ''
