@@ -1,5 +1,6 @@
 [[repos]]
 repo = "builtin"
+
 [[repos.hooks]]
 id = "no-commit-to-branch"
 
@@ -38,37 +39,38 @@ id = "detect-private-key"
 
 [[repos]]
 repo = "local"
+
 [[repos.hooks]]
 entry = "shellcheck"
-files = "\\.sh$"
+files = '\.sh$'
 id = "shellcheck"
 language = "system"
 name = "shellcheck"
 
 [[repos.hooks]]
 entry = "shfmt -w -i 2"
-files = "\\.sh$"
+files = '\.sh$'
 id = "shfmt"
 language = "system"
 name = "shfmt"
 
 [[repos.hooks]]
 entry = "kdlfmt format"
-files = "\\.kdl$"
+files = '\.kdl$'
 id = "kdlfmt"
 language = "system"
 name = "kdlfmt"
 
 [[repos.hooks]]
 entry = "prettier --write"
-files = "\\.md$"
+files = '\.md$'
 id = "prettier"
 language = "system"
 name = "prettier"
 
 [[repos.hooks]]
 entry = "nixfmt"
-files = "\\.nix$"
+files = '\.nix$'
 id = "nixfmt"
 language = "system"
 name = "nixfmt"
@@ -82,14 +84,14 @@ pass_filenames = false
 
 [[repos.hooks]]
 entry = "deadnix --edit"
-files = "\\.nix$"
+files = '\.nix$'
 id = "deadnix"
 language = "system"
 name = "deadnix"
 
 [[repos.hooks]]
 entry = "flake-checker --fail-mode --no-telemetry"
-files = "^flake\\.(nix|lock)$"
+files = '^flake\.(nix|lock)$'
 id = "flake-checker"
 language = "system"
 name = "flake-checker"
@@ -97,7 +99,7 @@ pass_filenames = false
 
 [[repos.hooks]]
 entry = "terraform-docs markdown table . --recursive --output-file README.md --output-mode inject --output-check"
-files = "\\.tf$"
+files = '\.tf$'
 id = "terraform-docs"
 language = "system"
 name = "terraform-docs"
@@ -105,7 +107,7 @@ pass_filenames = false
 
 [[repos.hooks]]
 entry = "tflint --recursive"
-files = "\\.tf$"
+files = '\.tf$'
 id = "tflint"
 language = "system"
 name = "tflint"
@@ -120,22 +122,22 @@ pass_filenames = false
 
 [[repos.hooks]]
 entry = "taplo format"
-exclude = "^prek\\.toml$"
-files = "\\.toml$"
+exclude = '^prek\.toml$'
+files = '\.toml$'
 id = "taplo"
 language = "system"
 name = "taplo"
 
 [[repos.hooks]]
 entry = "yamlfmt -formatter retain_line_breaks=true"
-files = "\\.ya?ml$"
+files = '\.ya?ml$'
 id = "yamlfmt"
 language = "system"
 name = "yamlfmt"
 
 [[repos.hooks]]
 entry = "sh -c 'nix run .#sync-prek && git diff --exit-code prek.toml'"
-files = "^(prek\\.toml|packages/code-quality-tools/.*\\.nix|flake\\.nix|nix/prek-toml\\.nix)$"
+files = '^(prek\.toml|packages/code-quality-tools/.*\.nix|flake\.nix|nix/prek-toml\.nix)$'
 id = "prek-toml-up-to-date"
 language = "system"
 name = "prek-toml-up-to-date"
