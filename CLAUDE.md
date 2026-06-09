@@ -278,6 +278,12 @@ Defined in `shell/scripts/zsh-init.sh` (zsh) and `shell/scripts/bash-init.sh`
 
 ## Important notes
 
+- **Claude Code auto-updater is disabled** via `DISABLE_AUTOUPDATER = "1"` in
+  `programs/claude-code.nix`'s `settings.env`. The `claude-code` package is
+  pinned and Nix-managed (bumped with `update-claude-code`) and its binary is
+  in the read-only `/nix/store`, so the built-in self-updater can only fail.
+  Update Claude Code by running `update-claude-code` (or `update`), not via the
+  in-app updater.
 - **`home.stateVersion`** (`"25.11"` in `home.nix`) must not be changed even
   when upgrading Home Manager. It tracks the format of state files on disk, not
   the HM version.

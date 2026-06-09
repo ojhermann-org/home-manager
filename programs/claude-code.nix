@@ -20,6 +20,15 @@ in
     context = ./claude/CLAUDE.md;
 
     settings = {
+      # Kill the built-in auto-updater. The package is pinned and Nix-managed
+      # (updated via `update-claude-code`), and the binary lives in the
+      # read-only /nix/store, so the self-updater can only ever fail —
+      # surfacing as an "auto-update failed" report in /doctor and on startup.
+      # `DISABLE_AUTOUPDATER` stops the update *check* entirely; the
+      # `autoUpdates: false` setting alone only blocks installing, so the check
+      # still runs and fails.
+      env.DISABLE_AUTOUPDATER = "1";
+
       permissions = {
         allow = [
           "Bash(aws configure:*)"
