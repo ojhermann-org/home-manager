@@ -50,6 +50,12 @@ Rules:
 - One bullet per issue: `<ID> <short title> — <status>` plus `(#PR)` when known.
 - Keep titles terse; don't paste full Linear titles verbatim if long.
 - Omit a section's bullets only if truly empty — keep the header and write "• none".
+- **Hyperlink each issue ID** to its Linear URL (captured in step 1) using Slack
+  link syntax: `<https://linear.app/getlora/issue/LOR-336/...|LOR-336>`. Hyperlink
+  PR references to GitHub too: `<https://github.com/getlora/lora/pull/278|#278>`.
+- **Mention Otto** in the title with his Slack user ID, not a plain name:
+  `*Daily update — <@U0B8HT6RVHC>*` (look it up via the Slack `users_search` tool
+  if the ID isn't known).
 
 ## 3. Approval gate (mandatory)
 
@@ -61,7 +67,34 @@ and re-show. If he declines, stop without posting.
 ## 4. Post to Slack
 
 Once approved, post the message via the Slack MCP posting tool to the agreed
-channel (default `#standup` unless Otto names another). After posting, confirm
-with a link or the channel name. If the post fails (e.g. the bot isn't in the
-channel, or the token is still the placeholder), report the error plainly and
-do not retry blindly.
+channel (default `#daily-priorities` unless Otto names another).
+
+**Post via Block Kit** (the `blocks` param), not `text`/`content_type`. A single
+`section` block with a `mrkdwn` text field renders everything correctly at once —
+`*bold*`, `•`, `:emoji:`, `<url|label>` links, `<@USERID>` mentions, and literal
+`\n` line breaks. Pass a short `text` value too as the notification fallback.
+
+Do **not** post as `text/markdown`: it collapses the single newlines between `•`
+bullets into spaces, putting every bullet on one line. (`text/plain` keeps line
+breaks but escapes the `<…>` link/mention syntax — so Block Kit is the only option
+that gives links, mentions, and line breaks together.)
+
+Example payload:
+
+```json
+[
+  {
+    "type": "section",
+    "text": {
+      "type": "mrkdwn",
+      "text": "*Daily update — <@U0B8HT6RVHC>*\n\n:white_check_mark: *Yesterday*\n• <https://linear.app/getlora/issue/LOR-336/...|LOR-336> short title — done\n\n:warning: *Blockers*\n• none"
+    }
+  }
+]
+```
+
+After posting, confirm with a link or the channel name. If the post fails (e.g.
+the bot isn't in the channel, or the token is still the placeholder), report the
+error plainly and do not retry blindly. Note: the packaged korotovsky v1.3.0
+server has no delete/edit tool, so a posted message can't be fixed in place — get
+the format right before posting.
