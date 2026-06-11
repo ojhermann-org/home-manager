@@ -7,10 +7,19 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    { nixpkgs, home-manager, ... }:
+    {
+      nixpkgs,
+      home-manager,
+      agenix,
+      ...
+    }:
     let
       username = "otto";
       systems = [
@@ -40,8 +49,14 @@
         system:
         home-manager.lib.homeManagerConfiguration {
           pkgs = pkgsFor system;
-          extraSpecialArgs = { inherit username; };
-          modules = [ ./home.nix ];
+          extraSpecialArgs = {
+            inherit username;
+            agenixPackage = agenix.packages.${system}.default;
+          };
+          modules = [
+            ./home.nix
+            agenix.homeManagerModules.default
+          ];
         };
       codeQualityTools =
         pkgs:

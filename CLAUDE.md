@@ -28,11 +28,16 @@ programs/          # One .nix file per tool/program; each returns a HM module
   prek.nix         # Installs prek (hook runner)
   lsp.nix          # Flat list of language servers (editor-agnostic; many serve multiple langs)
   code-quality.nix # Aggregates packages from packages/code-quality-tools/
+  agenix.nix       # age-encrypted secrets (Darwin): identityPaths + age.secrets + CLI
+  slack-mcp.nix    # Slack MCP server for Claude Code, token injected via agenix wrapper
   ...
   shell/           # Scripts sourced by shell.nix (bash-init.sh, zsh-init.sh, etc.)
   zellij/          # Zellij layout files
+  claude/skills/   # Claude Code skills (pre-pr, post-pr, new-repo, standup)
 packages/          # Standalone Nix derivations and lists imported by programs/ and flake.nix
   code-quality-tools/  # Per-language lists of formatters/linters; shared between HM + devShell
+  slack-mcp-server.nix # buildGoModule package of korotovsky/slack-mcp-server (pinned)
+secrets/           # agenix: encrypted *.age files + secrets.nix recipient rules
 ```
 
 ## Key patterns
@@ -202,6 +207,43 @@ All four are installed via the per-language code-quality lists under
 
 Before any `gh pr create` command, Claude automatically runs `nix flake update`
 from the repo root to ensure the lock file is current before the PR is opened.
+
+## Secrets (agenix)
+
+Secrets are managed declaratively with [agenix](https://github.com/ryantm/agenix)
+(age-encrypted, committed to the repo; decrypted at activation, never in the Nix
+store or git).
+
+- **Flake**: `agenix` is an input; `agenix.homeManagerModules.default` is added to
+  the module list in `flake.nix`, and its CLI is passed through as `agenixPackage`.
+- **`secrets/secrets.nix`** — recipient rules: maps each `*.age` file to the SSH
+  public keys allowed to decrypt it (currently Otto's `id_ed25519`).
+- **`secrets/*.age`** — the encrypted secrets themselves (committed).
+- **`programs/agenix.nix`** (Darwin-only) — sets `age.identityPaths` (the private
+  key used to decrypt) and declares each `age.secrets.<name>`. Decrypted files land
+  at `$(getconf DARWIN_USER_TEMP_DIR)/agenix/<name>` on Darwin.
+
+Create or edit a secret (run from the repo root, requires the private key):
+
+```bash
+agenix -e secrets/<name>.age
+```
+
+**Token-injection pattern (no secret in config):** a secret must never appear in
+generated config like `~/.claude/.mcp.json`. The pattern (see `programs/slack-mcp.nix`)
+is a `writeShellApplication` wrapper that `cat`s the decrypted agenix path into the
+process environment, then `exec`s the real program — so only the wrapper's store
+path is ever written to config, never the token.
+
+### Slack standup automation
+
+`programs/slack-mcp.nix` wires the `slack` MCP server (packaged from
+`packages/slack-mcp-server.nix`) into `programs.claude-code.mcpServers`, fed the
+`slack-bot-token` secret at runtime via the wrapper pattern above. The `standup`
+skill (`programs/claude/skills/standup/SKILL.md`) drafts a daily update from Linear
+and posts it to Slack only after approval. To activate end-to-end, the real Slack
+bot token (`xoxb-…`) must be put in place via `agenix -e secrets/slack-bot-token.age`
+(the committed value is a placeholder).
 
 ## Supported systems
 
