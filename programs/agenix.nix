@@ -21,9 +21,19 @@ lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
   age.identityPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519" ];
 
   # Slack bot token (xoxb-) for the MCP server. Populate the real value with:
-  #   agenix -e secrets/slack-bot-token.age
-  # (run from the repo root). The committed file is a placeholder until then.
+  #   cd secrets && agenix -e slack-bot-token.age
+  # (run from secrets/, where secrets.nix lives — agenix resolves the rules file
+  # and the key relative to CWD). The committed file is a placeholder until then.
   age.secrets."slack-bot-token".file = ../secrets/slack-bot-token.age;
+
+  # getlora `gh` token (a PAT for the otto-lora work account). Injected into `gh`
+  # only inside ~/lora via the wrapper function in programs/shell.nix, so the
+  # token authenticates getlora API calls without touching ~/.config/gh/hosts.yml
+  # (which stays the ojhermann account). Populate the real value with:
+  #   cd secrets && agenix -e gh-getlora-token.age
+  # (run from secrets/, where secrets.nix lives — agenix resolves the rules file
+  # and the key relative to CWD). The committed file is a placeholder until then.
+  age.secrets."gh-getlora-token".file = ../secrets/gh-getlora-token.age;
 
   # Work around an upstream agenix bug on Darwin. The `activate-agenix` launchd
   # agent (modules/age-home.nix) sets `KeepAlive.Crashed = false`, which tells

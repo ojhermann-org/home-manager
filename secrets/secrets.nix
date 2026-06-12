@@ -9,4 +9,5 @@ let
 in
 {
   "slack-bot-token.age".publicKeys = [ otto ];
+  "gh-getlora-token.age".publicKeys = [ otto ];
 }

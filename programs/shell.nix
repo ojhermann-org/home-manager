@@ -1,4 +1,9 @@
-{ pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   mkSystemCommands = system: {
@@ -59,6 +64,23 @@ in
       (builtins.readFile ./shell/scripts/zsh-init.sh)
       + ''
         compdef ct=tree
+      ''
+      # getlora `gh` identity, scoped to ~/lora — the gh-side mirror of the
+      # gitdir include in programs/git.nix. `gh` honors neither git's `gitdir`
+      # includes nor `core.sshCommand`; it reads ~/.config/gh/hosts.yml (the
+      # ojhermann account) regardless of directory. GH_TOKEN overrides that, so
+      # under ~/lora we feed gh the getlora PAT from agenix — but only into gh's
+      # own process (not the ambient shell env), mirroring the slack-mcp wrapper
+      # invariant. The agenix path embeds a `$(getconf …)` substitution the shell
+      # expands at runtime (same mechanism as programs/slack-mcp.nix).
+      + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
+        gh() {
+          if [[ "$PWD/" == "$HOME"/lora/* ]]; then
+            GH_TOKEN="$(cat "${config.age.secrets."gh-getlora-token".path}")" command gh "$@"
+          else
+            command gh "$@"
+          fi
+        }
       ''
       + lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
         ulimit -Ss 61440
